@@ -36,7 +36,7 @@ jobs:
 
         - run:
             name: Install using git branches (master or specified)
-            command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES npm run gdm
+            command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
             working_directory: helix-cli
 
         # Checkout project-helix.io
