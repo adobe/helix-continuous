@@ -57,6 +57,6 @@ jobs:
 
 workflows:
   version: 2
-  smoke:
+  build:
     jobs:
     - smoke
