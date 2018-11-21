@@ -12,11 +12,11 @@ jobs:
         # Prepare working env
         - checkout
         - run:
-            name: install npm 6.4.0
+            name: Install npm 6.4.0
             command: sudo npm -g install npm@6.4.0
 
         - run:
-            name: prepare test git user
+            name: Prepare test git user
             command: git config --global user.email "you@example.com" && git config --global user.name "CircleCi Build"
 
         - run:
@@ -30,9 +30,9 @@ jobs:
             command: git clone https://github.com/adobe/helix-cli.git
         
         - run:
-            name: Debug message on which branches are being used
+            name: Debug message - branches being used in helix-cli
             command: |
-                echo "Branch received as parameter: ${GDM_MODULE_BRANCHES}"
+                echo -n "Branch received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "All master"
 
         - run:
             name: Install using git branches (master or specified)
@@ -51,7 +51,7 @@ jobs:
 
         # Run the smoke tests
         - run:
-            name: Running Smoke Tests
+            name: Run Smoke Tests on project-helix.io
             command: env HLX_SMOKE_EXEC='node ../helix-cli/index.js --log-level warn' npx mocha  --exit test/smoke/*
             working_directory: project-helix.io
 
