@@ -1,8 +1,7 @@
 version: 2.0
 
 jobs:
-
-  smoke:
+  build:
     docker:
         - image: circleci/node:8
     environment:
@@ -59,4 +58,4 @@ workflows:
   version: 2
   build:
     jobs:
-    - smoke
+    - build
