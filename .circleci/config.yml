@@ -10,20 +10,22 @@ jobs:
 
     steps:
         # Prepare working env
-
+        - checkout
         - run:
             name: install npm 6.4.0
             command: sudo npm -g install npm@6.4.0
 
         - run:
-            name: Clone helix-cli
-            command: git clone https://github.com/adobe/helix-cli.git
-
-        - run:
             name: Install Git Dependency Maker tool
             command: npm install
-            working_directory: helix-cli/scripts/gdm
+            working_directory: scripts/gdm
 
+        # Prepare helix-cli to run the smoke tests
+
+        - run:
+            name: Clone helix-cli
+            command: git clone https://github.com/adobe/helix-cli.git
+        
         - run:
             name: Install using git branches (master or specified)
             command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES npm run gdm
