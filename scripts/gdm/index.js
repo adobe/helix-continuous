@@ -145,7 +145,7 @@ function start() {
       }
 
       // finally, link it in the subdep
-      link(pathInParent, subdep.name, `${modulePath}/${dirname(subdep.path)}`);
+      link(pathInParent, subdep.name, `${dirname(subdep.path)}`);
     });
   });
 
