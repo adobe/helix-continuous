@@ -13,7 +13,7 @@ To integrate this orb to a CircleCI config, include the following line to `.circ
 
 ```yml
 orbs:
-    helix-smoke-tests: adobe/helix-smoke-tests@0.0.4
+  helix-smoke-tests: adobe/helix-smoke-tests@0.0.4
 
 workflows:
   # ...
@@ -21,9 +21,9 @@ workflows:
   
   smoke:
     jobs:
-        - helix-smoke-tests/run:
-            token: ${SMOKE_TEST_TOKEN}
-            remote_repo: adobe/helix-continuous
+    - helix-smoke-tests/run:
+        token: ${SMOKE_TEST_TOKEN}
+        remote_repo: adobe/helix-continuous
 ```
 
 `SMOKE_TEST_TOKEN` is an environment variable that needs to be added to the project that consumes the orb: it corresponds to [CircleCI API token](https://circleci.com/gh/adobe/helix-continuous/edit#api) of the helix-continuous in order to be able to trigger the smoke tests job "remotely".
