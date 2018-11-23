@@ -11,5 +11,5 @@ This repo hosts everything needed for Project Helix CI/CD. In its current initia
 
 * the [CircleCI config](.circleci/config.yml) that executes some smoke tests
 * a [CircleCI orb](.circleci/orbs/helix-smoke-tests/README.md) which can be used by Helix repositories to launch the smoke tests, wait for execution and track output.
-* a little [Node util](scripts/gdm/README.md) which transforms all @adobe dependencies of an npm module into github dependencies (instead of fixed version dependencies). This is used by the smoke tests to build an helix-continuous from master branches + a branch to validate smoke tests against a Pull Request.
+* a little [Node util](scripts/gdm/README.md) which transforms all @adobe dependencies of an npm module into github dependencies (instead of fixed version dependencies). This is used by the smoke tests to build an helix-cli from master branches + a branch to validate smoke tests against a Pull Request.
 
