@@ -8,7 +8,7 @@ executors:
         docker:
             - image: circleci/node:8
 jobs:
-    helix-smoke-tests:
+    run:
         executor: node8
 
         description: "Run smoke tests on a remote repository, wait for execution and report status"
