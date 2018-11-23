@@ -7,7 +7,7 @@
 [![Greenkeeper badge](https://badges.greenkeeper.io/adobe/helix-continuous.svg)](https://greenkeeper.io/)
 [![LGTM Code Quality Grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/adobe/helix-continuous.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/adobe/helix-continuous)
 
-This repo hosts every needed for Project Helix CI/CD. In its current initial version, the repo contains:
+This repo hosts everything needed for Project Helix CI/CD. In its current initial version, the repo contains:
 
 * the [CircleCI config](.circleci/config.yml) that executes some smoke tests
 * a [CircleCI orb](.circleci/orbs/helix-smoke-tests/README.md) which can be used by Helix repositories to launch the smoke tests, wait for execution and track output.
