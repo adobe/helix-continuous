@@ -36,15 +36,24 @@ jobs:
             command: |
                 echo -n "Branch received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "All master"
 
+        - restore_cache:
+            keys:
+            - v3-dependencies-{{ arch }}-{{ checksum "helix-cli/package-lock.json" }}
+
         - run:
             name: Install using git branches (master or specified)
             command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
             working_directory: helix-cli
 
+        - save_cache:
+            paths:
+            - helix-cli/node_modules
+            key: v3-dependencies-{{ arch }}-{{ checksum "helix-cli/package-lock.json" }}
+
         # Checkout project-helix.io
         - run:
             name: Clone project-helix.io
-            command: git clone https://github.com/adobe/project-helix.io.git
+            command: git clone --single-branch --depth 1 https://github.com/adobe/project-helix.io.git
 
         - run:
             name: Install project-helix.io
