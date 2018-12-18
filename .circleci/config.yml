@@ -38,7 +38,7 @@ jobs:
 
         - restore_cache:
             keys:
-            - v3-dependencies-{{ arch }}-{{ checksum "helix-cli/package-lock.json" }}
+            - v3-dependencies-{{ arch }}-{{ checksum "helix-cli/package.json" }}
 
         - run:
             name: Install using git branches (master or specified)
@@ -48,7 +48,7 @@ jobs:
         - save_cache:
             paths:
             - helix-cli/node_modules
-            key: v3-dependencies-{{ arch }}-{{ checksum "helix-cli/package-lock.json" }}
+            key: v3-dependencies-{{ arch }}-{{ checksum "helix-cli/package.json" }}
 
         # Checkout project-helix.io
         - run:
