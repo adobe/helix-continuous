@@ -24,7 +24,7 @@ const ADOBE_ORG = 'adobe';
 function install(mod) {
   console.log(`Installing module ${mod.name}`);
 
-  const out = $.exec('npm install', {
+  const out = $.exec('npm install --no-audit', {
     silent: false,
     async: false,
     cwd: mod.path,
@@ -40,7 +40,7 @@ function install(mod) {
 function installDependency(depName, cwd) {
   console.log(`Installing dependency ${depName}`);
 
-  const out = $.exec(`npm install ${depName}`, {
+  const out = $.exec(`npm install ${depName} --no-audit`, {
     silent: false,
     async: false,
     cwd,
@@ -95,8 +95,26 @@ function link(source, target, cwd) {
   }
 }
 
+function setProgressOff() {
+  console.log(`Setting npm progress off`);
+
+  const out = $.exec(`npm set progress=false`, {
+    silent: false,
+    async: false,
+  });
+
+  // console.debug('Linking output:', out.stdout);
+
+  if (out.stderr && out.stderr !== '') {
+    console.error('npm set progress off stderr:', out.stderr);
+  }
+}
+
 function start() {
+  const start = new Date().getTime();
   const modulePath = process.env.GDM_MODULE_PATH || process.cwd();
+
+  setProgressOff();
 
   // 1. install the module
   // (should be current folder otherwise specified by GDM_MODULE_PATH env variable)
@@ -149,6 +167,7 @@ function start() {
     });
   });
 
+  console.log(`Total execution time: ${new Date().getTime() - start} ms.`);
   console.log('Done.');
 }
 
