@@ -38,7 +38,7 @@ jobs:
 
         - restore_cache:
             keys:
-            - v3-dependencies-{{ arch }}
+            - v3-dependencies-{{ arch }}-continuous
 
         - run:
             name: Install using git branches (master or specified)
@@ -48,7 +48,7 @@ jobs:
         - save_cache:
             paths:
             - helix-cli/node_modules
-            key: v3-dependencies-{{ arch }}
+            key: v3-dependencies-{{ arch }}-continuous
 
         # Checkout project-helix.io
         - run:
