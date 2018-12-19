@@ -24,7 +24,7 @@ const ADOBE_ORG = 'adobe';
 function install(mod) {
   console.log(`Installing module ${mod.name}`);
 
-  const out = $.exec('npm install --no-audit', {
+  const out = $.exec('npm install --no-audit --prefer-offline', {
     silent: false,
     async: false,
     cwd: mod.path,
@@ -40,7 +40,7 @@ function install(mod) {
 function installDependency(depName, cwd) {
   console.log(`Installing dependency ${depName}`);
 
-  const out = $.exec(`npm install ${depName} --no-audit`, {
+  const out = $.exec(`npm install ${depName} --no-audit --prefer-offline`, {
     silent: false,
     async: false,
     cwd,
