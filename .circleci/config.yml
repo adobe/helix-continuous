@@ -32,6 +32,7 @@ jobs:
             command: |
                 if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
                 cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+                echo "Using helix-cli branch: ${cli_branch}"
                 git clone --branch $cli_branch https://github.com/adobe/helix-cli.git
         
         - run:
