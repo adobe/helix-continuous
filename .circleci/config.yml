@@ -45,11 +45,6 @@ jobs:
             command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
             working_directory: helix-cli
 
-        - save_cache:
-            paths:
-            - /home/circleci/.npm
-            key: v3-dependencies-{{ arch }}-continuous-npm-cache
-
         # Checkout project-helix.io
         - run:
             name: Clone project-helix.io
@@ -59,6 +54,11 @@ jobs:
             name: Install project-helix.io
             command: npm install --prefer-offline
             working_directory: project-helix.io
+
+        - save_cache:
+            paths:
+            - /home/circleci/.npm
+            key: v3-dependencies-{{ arch }}-continuous-npm-cache
 
         # Run the smoke tests
         - run:
