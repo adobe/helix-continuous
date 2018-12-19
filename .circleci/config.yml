@@ -14,8 +14,8 @@ jobs:
         # Prepare working env
         - checkout
         - run:
-            name: Install npm 6.4.0
-            command: sudo npm -g install npm@6.4.0
+            name: Install npm 6.4.1
+            command: sudo npm -g install npm@6.4.1
 
         - run:
             name: Prepare test git user
@@ -36,19 +36,10 @@ jobs:
             command: |
                 echo -n "Branch received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "All master"
 
-        - restore_cache:
-            keys:
-            - v3-dependencies-{{ arch }}-continuous
-
         - run:
             name: Install using git branches (master or specified)
             command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
             working_directory: helix-cli
-
-        - save_cache:
-            paths:
-            - helix-cli/node_modules
-            key: v3-dependencies-{{ arch }}-continuous
 
         # Checkout project-helix.io
         - run:
