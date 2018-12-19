@@ -21,6 +21,10 @@ jobs:
             name: Prepare test git user
             command: git config --global user.email "you@example.com" && git config --global user.name "CircleCi Build"
 
+        - restore_cache:
+            keys:
+            - v3-dependencies-{{ arch }}-continuous-npm-cache
+
         - run:
             name: Install Git Dependency Maker tool
             command: npm install --no-audit --prefer-offline
@@ -36,10 +40,6 @@ jobs:
             command: |
                 echo -n "Branch received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "All master"
 
-        - restore_cache:
-            keys:
-            - v3-dependencies-{{ arch }}-continuous
-
         - run:
             name: Install using git branches (master or specified)
             command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
@@ -47,8 +47,8 @@ jobs:
 
         - save_cache:
             paths:
-            - helix-cli/node_modules
-            key: v3-dependencies-{{ arch }}-continuous
+            - /home/circleci/.npm
+            key: v3-dependencies-{{ arch }}-continuous-npm-cache
 
         # Checkout project-helix.io
         - run:
