@@ -29,7 +29,10 @@ jobs:
         # Prepare helix-cli to run the smoke tests
         - run:
             name: Clone helix-cli
-            command: git clone https://github.com/adobe/helix-cli.git
+            command: |
+                if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
+                cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+                git clone --branch $cli_branch https://github.com/adobe/helix-cli.git
         
         - run:
             name: Debug message - branches being used in helix-cli
