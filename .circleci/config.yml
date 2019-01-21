@@ -52,7 +52,9 @@ jobs:
         # Checkout project-helix.io
         - run:
             name: Clone project-helix.io
-            command: git clone --single-branch --depth 1 https://github.com/adobe/project-helix.io.git
+            command: |
+                if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
+                git clone --single-branch --depth 1 https://github.com/adobe/project-helix.io.git#${SMOKETEST_BRANCH}
 
         - run:
             name: Install project-helix.io
