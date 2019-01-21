@@ -54,7 +54,7 @@ jobs:
             name: Clone project-helix.io
             command: |
                 if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
-                git clone --single-branch --depth 1 https://github.com/adobe/project-helix.io.git#${SMOKETEST_BRANCH}
+                git clone --single-branch --depth 1 -b ${SMOKETEST_BRANCH} https://github.com/adobe/project-helix.io.git
 
         - run:
             name: Install project-helix.io
