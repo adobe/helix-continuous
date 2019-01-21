@@ -14,16 +14,20 @@ jobs:
         # Prepare working env
         - checkout
         - run:
-            name: Install npm 6.4.0
-            command: sudo npm -g install npm@6.4.0
+            name: Install npm 6.4.1
+            command: sudo npm -g install npm@6.4.1
 
         - run:
             name: Prepare test git user
             command: git config --global user.email "you@example.com" && git config --global user.name "CircleCi Build"
 
+        - restore_cache:
+            keys:
+            - v3-dependencies-{{ arch }}-continuous-npm-cache
+
         - run:
             name: Install Git Dependency Maker tool
-            command: npm install
+            command: npm install --no-audit --prefer-offline
             working_directory: scripts/gdm
 
         # Prepare helix-cli to run the smoke tests
@@ -33,7 +37,7 @@ jobs:
                 if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
                 cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
                 echo "Using helix-cli branch: ${cli_branch}"
-                git clone --branch $cli_branch https://github.com/adobe/helix-cli.git
+                git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
         
         - run:
             name: Debug message - branches being used in helix-cli
@@ -48,12 +52,17 @@ jobs:
         # Checkout project-helix.io
         - run:
             name: Clone project-helix.io
-            command: git clone https://github.com/adobe/project-helix.io.git
+            command: git clone --single-branch --depth 1 https://github.com/adobe/project-helix.io.git
 
         - run:
             name: Install project-helix.io
-            command: npm install
+            command: npm install --no-audit --prefer-offline
             working_directory: project-helix.io
+
+        - save_cache:
+            paths:
+            - /home/circleci/.npm
+            key: v3-dependencies-{{ arch }}-continuous-npm-cache
 
         # Run the smoke tests
         - run:
