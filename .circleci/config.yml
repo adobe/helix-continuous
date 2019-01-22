@@ -17,11 +17,14 @@ jobs:
             name: Compute parameters and echo values
             command: |
                 echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
-                if [ -z ${GDM_MODULE_BRANCHES} ]; then echo "export GDM_MODULE_BRANCHES=\"{}\";" fi
-                echo "export cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if .\"helix-cli\" then .\"helix-cli\" else \"master\" end');"
+                if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
+                cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
                 echo "Using helix-cli branch: ${cli_branch}"
-                if [ -z ${SMOKETEST_BRANCH} ]; then echo "export SMOKETEST_BRANCH=\"master\";" fi
+                if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
                 echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
+                echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES"
+                echo "export cli_branch=$cli_branch"
+                echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH"
 
         - run:
             name: Install npm 6.4.1
