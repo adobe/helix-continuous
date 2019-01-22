@@ -38,20 +38,26 @@ commands:
         parameters:
             token:
                 type: string
+                description: the CircleCI token to execute a CircleCI job on the smoke test repo
             local_repo:
                 type: string
                 default: ${CIRCLE_PROJECT_REPONAME}
+                description: the repo that "requests" the smoke tests
             local_branch:
                 type: string
                 default: ${CIRCLE_BRANCH}
+                description: the branch of the repo that "requests" the smoke tests
             remote_repo:
                 type: string
+                description: the repo that hosts the smoke tests
             remote_branch:
                 type: string
                 default: master
+                description: the branch of repo that hosts the smoke tests
             smoketest_branch: 
                 type: string
                 default: master
+                description: the name of the branch of the smoke test module
         steps:
             - run:
                 name: Call remote smoke tests job
