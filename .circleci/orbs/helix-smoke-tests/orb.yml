@@ -19,27 +19,45 @@ jobs:
             remote_repo:
                 type: string
                 description: the repo that hosts the smoke tests
+            remote_branch:
+                type: string
+                description: the branch of repo that hosts the smoke tests
+            smoketest_branch: 
+                type: string
+                default: master
+                description: the name of the branch of the smoke test module
         steps:
             - run-helix-smoke-tests-cmd:
                 token: << parameters.token >>
                 remote_repo: << parameters.remote_repo >>
+                remote_branch: << parameters.remote_branch >>
+                smoketest_branch: << parameters.smoketest_branch >>
 commands:
     run-helix-smoke-tests-cmd:
         description: "Run smoke tests on a remote repository, wait for execution and report status"
         parameters:
             token:
                 type: string
+                description: the CircleCI token to execute a CircleCI job on the smoke test repo
             local_repo:
                 type: string
                 default: ${CIRCLE_PROJECT_REPONAME}
+                description: the repo that "requests" the smoke tests
             local_branch:
                 type: string
                 default: ${CIRCLE_BRANCH}
+                description: the branch of the repo that "requests" the smoke tests
             remote_repo:
                 type: string
+                description: the repo that hosts the smoke tests
             remote_branch:
                 type: string
                 default: master
+                description: the branch of repo that hosts the smoke tests
+            smoketest_branch: 
+                type: string
+                default: master
+                description: the name of the branch of the smoke test module
         steps:
             - run:
                 name: Call remote smoke tests job
@@ -48,7 +66,7 @@ commands:
                         --user << parameters.token>>: \
                         --header "Content-Type: application/json" \
                         --silent \
-                        --data "{\"build_parameters\": {\"GDM_MODULE_BRANCHES\": { \"<< parameters.local_repo >>\": \"<< parameters.local_branch >>\"}}}" \
+                        --data "{\"build_parameters\": {\"GDM_MODULE_BRANCHES\": { \"<< parameters.local_repo >>\": \"<< parameters.local_branch >>\"}, \"SMOKETEST_BRANCH\": \"<< parameters.smoketest_branch >>\"}}" \
                         --request POST "https://circleci.com/api/v1.1/project/github/<< parameters.remote_repo >>/tree/<< parameters.remote_branch >>" > run_tests_cmd_job.json
             - run:
                 name: Wait for smoke tests job to complete and report status

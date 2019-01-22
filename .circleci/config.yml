@@ -14,6 +14,20 @@ jobs:
         # Prepare working env
         - checkout
         - run:
+            name: Compute parameters and echo values
+            command: |
+                echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
+                if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
+                cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+                echo "Using helix-cli branch: ${cli_branch}"
+                if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
+                echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
+                # Require to "pass" variables across steps
+                echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
+                echo "export cli_branch=$cli_branch" >> $BASH_ENV
+                echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+
+        - run:
             name: Install npm 6.4.1
             command: sudo npm -g install npm@6.4.1
 
@@ -34,16 +48,8 @@ jobs:
         - run:
             name: Clone helix-cli
             command: |
-                if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
-                cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
-                echo "Using helix-cli branch: ${cli_branch}"
                 git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
         
-        - run:
-            name: Debug message - branches being used in helix-cli
-            command: |
-                echo -n "Branch received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "All master"
-
         - run:
             name: Install using git branches (master or specified)
             command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
@@ -52,7 +58,8 @@ jobs:
         # Checkout project-helix.io
         - run:
             name: Clone project-helix.io
-            command: git clone --single-branch --depth 1 https://github.com/adobe/project-helix.io.git
+            command: |
+                git clone --single-branch --depth 1 -b ${SMOKETEST_BRANCH} https://github.com/adobe/project-helix.io.git
 
         - run:
             name: Install project-helix.io
