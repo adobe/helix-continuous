@@ -22,9 +22,9 @@ jobs:
                 echo "Using helix-cli branch: ${cli_branch}"
                 if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
                 echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
-                echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES"
-                echo "export cli_branch=$cli_branch"
-                echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH"
+                echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
+                echo "export cli_branch=$cli_branch" >> $BASH_ENV
+                echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
 
         - run:
             name: Install npm 6.4.1
