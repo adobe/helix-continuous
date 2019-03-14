@@ -82,7 +82,7 @@ commands:
                     RUNNING=true
                         while [ $RUNNING == true ]; do
                         sleep 10;
-                        status=$(curl --silent --header "Accept: application/json" "${build_url}?circle-token=$1" | tee ${smoke_result_file} | jq -r '.status');
+                        status=$(curl --silent --header "Accept: application/json" "${build_url}?circle-token=$1" | tee ${smoke_result_file} | jq -r '.status' || echo '');
                         echo 'running queued scheduled not_running' | grep --silent "$status" || RUNNING=false;
                         echo -n "."
                     done
