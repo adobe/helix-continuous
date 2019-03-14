@@ -17,6 +17,7 @@ Modify an existing org and publish a new version:
 
 * first validate the yml file: `circleci orb validate helix-smoke-tests/orb.yml`
 * publish increment a new version (semver: patch / minor / major): `circleci orb publish increment helix-smoke-tests/orb.yml adobe/helix-smoke-tests patch`
+* Update the version in the orb [readme](helix-smoke-tests/README.md)
 
 Setup for publishing:
 
