@@ -13,7 +13,7 @@ To integrate this orb to a CircleCI config, include the following line to `.circ
 
 ```yml
 orbs:
-  helix-smoke-tests: adobe/helix-smoke-tests@0.0.6
+  helix-smoke-tests: adobe/helix-smoke-tests@0.0.7
 
 workflows:
   # ...
