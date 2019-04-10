@@ -33,7 +33,7 @@ jobs:
 
         - run:
             name: Prepare test git user
-            command: git config --global user.email "you@example.com" && git config --global user.name "CircleCi Build"
+            command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
 
         - restore_cache:
             keys:
@@ -74,9 +74,24 @@ jobs:
         # Run the smoke tests
         - run:
             name: Run Smoke Tests on project-helix.io
-            command: env HLX_SMOKE_EXEC='node ../helix-cli/index.js --log-level warn' npx mocha  --exit test/smoke/*
+            command: env HLX_SMOKE_EXEC='node ../helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
             working_directory: project-helix.io
 
+        # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
+        - run: mkdir junit
+        
+        - run:
+            name: Test helix-cli
+            command: npm run test
+            working_directory: helix-cli
+            environment:
+                MOCHA_FILE: junit/test-results.xml
+
+        - store_test_results:
+            path: junit
+
+        - store_artifacts:
+            path: junit
 workflows:
   version: 2
   build:
