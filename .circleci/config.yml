@@ -4,8 +4,6 @@ executors:
     docker:
     # use latest node 8 on debian 8 (jessie)
     - image: circleci/node:8-jessie
-    environment:
-      NPM_CONFIG_PREFIX: /tmp/workspace/.npm-global
 
 jobs:
     build_cli:
@@ -38,7 +36,7 @@ jobs:
 
             - restore_cache:
                 keys:
-                - v3-dependencies-{{ arch }}-continuous-npm-cache
+                - v4-dependencies-{{ arch }}-continuous-npm-cache
 
             - run:
                 name: Install Git Dependency Maker tool
@@ -50,18 +48,17 @@ jobs:
                 name: Clone helix-cli
                 command: |
                     git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
-                working_directory: /tmp/workspace
             
             - run:
                 name: Install using git branches (master or specified)
-                command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
-                working_directory: /tmp/workspace/helix-cli
+                command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node scripts/gdm/index.js
+                working_directory: helix-cli
 
             - persist_to_workspace:
-                root: /tmp/workspace
+                root: /home/circleci
                 paths:
                     - helix-cli
-                    - .npm-global
+                    - .npm
 
 
     test_project_helix:
@@ -69,7 +66,7 @@ jobs:
 
         steps:
             - attach_workspace:
-                at: /tmp/workspace
+                at: /home/circleci
 
             # Checkout project-helix.io
             - run:
@@ -93,7 +90,7 @@ jobs:
 
         steps:
             - attach_workspace:
-                at: /tmp/workspace
+                at: /home/circleci
 
             # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
             - run: mkdir junit
@@ -117,7 +114,7 @@ jobs:
             - save_cache:
                 paths:
                 - /home/circleci/.npm
-                key: v3-dependencies-{{ arch }}-continuous-npm-cache
+                key: v4-dependencies-{{ arch }}-continuous-npm-cache
 
 workflows:
     version: 3
