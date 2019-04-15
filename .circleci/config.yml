@@ -45,7 +45,7 @@ jobs:
 
             - restore_cache:
                 keys:
-                - v4-dependencies-{{ arch }}-continuous-npm-cache
+                - v5-dependencies-{{ arch }}-continuous-npm-cache
 
             - run:
                 name: Install Git Dependency Maker tool
@@ -132,7 +132,7 @@ jobs:
             - save_cache:
                 paths:
                 - /home/circleci/.npm
-                key: v4-dependencies-{{ arch }}-continuous-npm-cache
+                key: v5-dependencies-{{ arch }}-continuous-npm-cache
 
 workflows:
     version: 3
