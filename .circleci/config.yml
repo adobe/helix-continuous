@@ -68,6 +68,9 @@ jobs:
         executor: node8
 
         steps:
+            - attach_workspace:
+                at: /workspace
+
             # Checkout project-helix.io
             - run:
                 name: Clone project-helix.io
@@ -89,6 +92,9 @@ jobs:
         executor: node8
 
         steps:
+            - attach_workspace:
+                at: /workspace
+
             # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
             - run: mkdir junit
             
