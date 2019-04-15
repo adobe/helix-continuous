@@ -6,7 +6,6 @@ defaults: &defaults
 
 aliases:
     - &compute_parameters:
-        name: Compute parameters and echo values
         command: |
             echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
             if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
@@ -18,8 +17,8 @@ aliases:
             echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
             echo "export cli_branch=$cli_branch" >> $BASH_ENV
             echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+
     - &set_git_user:
-        name: Prepare test git user
         command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
 
 jobs:
