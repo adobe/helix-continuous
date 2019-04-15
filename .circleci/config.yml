@@ -1,43 +1,41 @@
+version: 2.0
+
+defaults: &defaults
+  docker:
+    - image: circleci/node:8-jessie
+
 aliases:
     - &compute_parameters:
-        steps:
-            - run:
-                name: Compute parameters and echo values
-                command: |
-                    echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
-                    if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
-                    cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
-                    echo "Using helix-cli branch: ${cli_branch}"
-                    if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
-                    echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
-                    # Require to "pass" variables across steps
-                    echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
-                    echo "export cli_branch=$cli_branch" >> $BASH_ENV
-                    echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+        name: Compute parameters and echo values
+        command: |
+            echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
+            if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
+            cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+            echo "Using helix-cli branch: ${cli_branch}"
+            if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
+            echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
+            # Require to "pass" variables across steps
+            echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
+            echo "export cli_branch=$cli_branch" >> $BASH_ENV
+            echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
     - &set_git_user:
-        steps:
-            - run:
-                name: Prepare test git user
-                command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
-
-version: 2.0
+        name: Prepare test git user
+        command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
 
 jobs:
     build_cli:
-        docker:
-            # use latest node 8 on debian 8 (jessie)
-            - image: circleci/node:8-jessie
+        <<: *defaults
 
         steps:
             # Prepare working env
             - checkout
-            - *compute_parameters
+            - run: *compute_parameters
 
             - run:
                 name: Install npm 6.4.1
                 command: sudo npm -g install npm@6.4.1
 
-            - *set_git_user
+            - run: *set_git_user
 
             - restore_cache:
                 keys:
@@ -68,16 +66,14 @@ jobs:
 
 
     test_project_helix:
-        docker:
-            # use latest node 8 on debian 8 (jessie)
-            - image: circleci/node:8-jessie
+        <<: *defaults
 
         steps:
             - attach_workspace:
                 at: /home/circleci
 
-            - *compute_parameters
-            - *set_git_user
+            - run: *compute_parameters
+            - run: *set_git_user
 
             # Checkout project-helix.io
             - run:
@@ -97,15 +93,13 @@ jobs:
                 working_directory: project-helix.io
 
     test_helix_cli:
-        docker:
-            # use latest node 8 on debian 8 (jessie)
-            - image: circleci/node:8-jessie
+        <<: *defaults
 
         steps:
             - attach_workspace:
                 at: /home/circleci
 
-            - *set_git_user
+            - run: *set_git_user
 
             # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
             - run: mkdir junit
@@ -124,9 +118,7 @@ jobs:
                 path: junit
 
     finalize:
-        docker:
-            # use latest node 8 on debian 8 (jessie)
-            - image: circleci/node:8-jessie
+        <<: *defaults
 
         steps:
             - attach_workspace:
