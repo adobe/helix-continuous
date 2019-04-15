@@ -106,7 +106,7 @@ jobs:
                 at: /home/circleci
 
             - set_git_user
-            
+
             # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
             - run: mkdir junit
             
@@ -126,6 +126,9 @@ jobs:
     finalize:
         executor: node8
         steps:
+            - attach_workspace:
+                at: /home/circleci
+
             - save_cache:
                 paths:
                 - /home/circleci/.npm
