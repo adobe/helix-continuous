@@ -1,5 +1,3 @@
-version: 2.0
-
 aliases:
     - &compute_parameters:
         steps:
@@ -21,7 +19,8 @@ aliases:
             - run:
                 name: Prepare test git user
                 command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
-    
+
+version: 2.0
 
 jobs:
     build_cli:
@@ -139,7 +138,7 @@ jobs:
                 key: v5-dependencies-{{ arch }}-continuous-npm-cache
 
 workflows:
-    version: 3
+    version: 2
     build:
         jobs:
             - build_cli
