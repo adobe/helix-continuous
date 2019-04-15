@@ -1,14 +1,15 @@
-version: 2.0
+version: 2.1
+executors:
+  node8:
+    docker:
+    # use latest node 8 on debian 8 (jessie)
+    - image: circleci/node:8-jessie
+    environment:
+      NPM_CONFIG_PREFIX: ~/.npm-global
 
 jobs:
-  build:
-    docker:
-        # use latest node 8 on debian 8 (jessie)
-        # (on debian 9 (stretch) a runtime error occurs: Error: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory)
-        # see https://github.com/adobe/helix-cli/issues/353 for more details
-        - image: circleci/node:8-jessie
-    environment:
-        NPM_CONFIG_PREFIX: ~/.npm-global
+  build_cli:
+    executor: node8
 
     steps:
         # Prepare working env
@@ -55,6 +56,8 @@ jobs:
             command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
             working_directory: helix-cli
 
+    test_project_helix:
+        executor: node8
         # Checkout project-helix.io
         - run:
             name: Clone project-helix.io
@@ -66,17 +69,14 @@ jobs:
             command: npm install --no-audit --prefer-offline
             working_directory: project-helix.io
 
-        - save_cache:
-            paths:
-            - /home/circleci/.npm
-            key: v3-dependencies-{{ arch }}-continuous-npm-cache
-
         # Run the smoke tests
         - run:
             name: Run Smoke Tests on project-helix.io
             command: env HLX_SMOKE_EXEC='node ../helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
             working_directory: project-helix.io
 
+    test_helix_cli:
+        executor: node8
         # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
         - run: mkdir junit
         
@@ -92,8 +92,25 @@ jobs:
 
         - store_artifacts:
             path: junit
+
+    finalize:
+        - save_cache:
+            executor: node8
+            paths:
+            - /home/circleci/.npm
+            key: v3-dependencies-{{ arch }}-continuous-npm-cache
 workflows:
   version: 2
   build:
     jobs:
-    - build
+    - build_cli
+    - test_project_helix
+        requires:
+        - build_cli
+    - test_helix_cli
+        requires:
+        - build_cli
+    - finalize
+        requires:
+        - test_project_helix
+        - test_helix_cli
