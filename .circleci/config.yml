@@ -85,7 +85,7 @@ jobs:
             # Run the smoke tests
             - run:
                 name: Run Smoke Tests on project-helix.io
-                command: env HLX_SMOKE_EXEC='node ../helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
+                command: env HLX_SMOKE_EXEC='node /workspace/helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
                 working_directory: project-helix.io
 
     test_helix_cli:
