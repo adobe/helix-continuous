@@ -5,6 +5,23 @@ executors:
     # use latest node 8 on debian 8 (jessie)
     - image: circleci/node:8-jessie
 
+commands:
+  compute_parameters:
+    steps:
+        - run:
+            name: Compute parameters and echo values
+            command: |
+                echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
+                if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
+                cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+                echo "Using helix-cli branch: ${cli_branch}"
+                if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
+                echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
+                # Require to "pass" variables across steps
+                echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
+                echo "export cli_branch=$cli_branch" >> $BASH_ENV
+                echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+
 jobs:
     build_cli:
         executor: node8
@@ -12,19 +29,7 @@ jobs:
         steps:
             # Prepare working env
             - checkout
-            - run:
-                name: Compute parameters and echo values
-                command: |
-                    echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
-                    if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
-                    cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
-                    echo "Using helix-cli branch: ${cli_branch}"
-                    if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
-                    echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
-                    # Require to "pass" variables across steps
-                    echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
-                    echo "export cli_branch=$cli_branch" >> $BASH_ENV
-                    echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+            - compute_parameters
 
             - run:
                 name: Install npm 6.4.1
@@ -57,7 +62,8 @@ jobs:
             - persist_to_workspace:
                 root: /home/circleci
                 paths:
-                    - helix-cli
+                    # for whatever reason, working directoy is project.
+                    - project
                     - .npm
 
 
@@ -67,6 +73,8 @@ jobs:
         steps:
             - attach_workspace:
                 at: /home/circleci
+
+            - compute_parameters
 
             # Checkout project-helix.io
             - run:
@@ -82,7 +90,7 @@ jobs:
             # Run the smoke tests
             - run:
                 name: Run Smoke Tests on project-helix.io
-                command: env HLX_SMOKE_EXEC='node ~/helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
+                command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
                 working_directory: project-helix.io
 
     test_helix_cli:
