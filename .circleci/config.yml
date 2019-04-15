@@ -6,21 +6,27 @@ executors:
     - image: circleci/node:8-jessie
 
 commands:
-  compute_parameters:
-    steps:
-        - run:
-            name: Compute parameters and echo values
-            command: |
-                echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
-                if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
-                cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
-                echo "Using helix-cli branch: ${cli_branch}"
-                if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
-                echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
-                # Require to "pass" variables across steps
-                echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
-                echo "export cli_branch=$cli_branch" >> $BASH_ENV
-                echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+    compute_parameters:
+        steps:
+            - run:
+                name: Compute parameters and echo values
+                command: |
+                    echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
+                    if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
+                    cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+                    echo "Using helix-cli branch: ${cli_branch}"
+                    if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
+                    echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
+                    # Require to "pass" variables across steps
+                    echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
+                    echo "export cli_branch=$cli_branch" >> $BASH_ENV
+                    echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+    set_git_user:
+        steps:
+            - run:
+                name: Prepare test git user
+                command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
+    
 
 jobs:
     build_cli:
@@ -35,9 +41,7 @@ jobs:
                 name: Install npm 6.4.1
                 command: sudo npm -g install npm@6.4.1
 
-            - run:
-                name: Prepare test git user
-                command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
+            - set_git_user
 
             - restore_cache:
                 keys:
@@ -75,6 +79,7 @@ jobs:
                 at: /home/circleci
 
             - compute_parameters
+            - set_git_user
 
             # Checkout project-helix.io
             - run:
@@ -100,6 +105,8 @@ jobs:
             - attach_workspace:
                 at: /home/circleci
 
+            - set_git_user
+            
             # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
             - run: mkdir junit
             
