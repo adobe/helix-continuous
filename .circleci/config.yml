@@ -5,7 +5,7 @@ executors:
     # use latest node 8 on debian 8 (jessie)
     - image: circleci/node:8-jessie
     environment:
-      NPM_CONFIG_PREFIX: ~/.npm-global
+      NPM_CONFIG_PREFIX: /worksapce/.npm-global
 
 jobs:
     build_cli:
@@ -50,11 +50,19 @@ jobs:
                 name: Clone helix-cli
                 command: |
                     git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
+                working_directory: /workspace
             
             - run:
                 name: Install using git branches (master or specified)
                 command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
-                working_directory: helix-cli
+                working_directory: /workspace/helix-cli
+
+            - persist_to_workspace:
+                root: ~/workspace
+                paths:
+                    - helix-cli
+                    - .npm-global
+
 
     test_project_helix:
         executor: node8
