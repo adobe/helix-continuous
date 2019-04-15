@@ -1,12 +1,7 @@
-version: 2.1
-executors:
-  node8:
-    docker:
-    # use latest node 8 on debian 8 (jessie)
-    - image: circleci/node:8-jessie
+version: 2.0
 
-commands:
-    compute_parameters:
+ aliases:
+    - &compute_parameters:
         steps:
             - run:
                 name: Compute parameters and echo values
@@ -21,7 +16,7 @@ commands:
                     echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
                     echo "export cli_branch=$cli_branch" >> $BASH_ENV
                     echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
-    set_git_user:
+    - &set_git_user:
         steps:
             - run:
                 name: Prepare test git user
@@ -30,18 +25,20 @@ commands:
 
 jobs:
     build_cli:
-        executor: node8
+        docker:
+            # use latest node 8 on debian 8 (jessie)
+            - image: circleci/node:8-jessie
 
         steps:
             # Prepare working env
             - checkout
-            - compute_parameters
+            - *compute_parameters
 
             - run:
                 name: Install npm 6.4.1
                 command: sudo npm -g install npm@6.4.1
 
-            - set_git_user
+            - *set_git_user
 
             - restore_cache:
                 keys:
@@ -72,14 +69,16 @@ jobs:
 
 
     test_project_helix:
-        executor: node8
+        docker:
+            # use latest node 8 on debian 8 (jessie)
+            - image: circleci/node:8-jessie
 
         steps:
             - attach_workspace:
                 at: /home/circleci
 
-            - compute_parameters
-            - set_git_user
+            - *compute_parameters
+            - *set_git_user
 
             # Checkout project-helix.io
             - run:
@@ -99,13 +98,15 @@ jobs:
                 working_directory: project-helix.io
 
     test_helix_cli:
-        executor: node8
+        docker:
+            # use latest node 8 on debian 8 (jessie)
+            - image: circleci/node:8-jessie
 
         steps:
             - attach_workspace:
                 at: /home/circleci
 
-            - set_git_user
+            - *set_git_user
 
             # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
             - run: mkdir junit
@@ -124,7 +125,10 @@ jobs:
                 path: junit
 
     finalize:
-        executor: node8
+        docker:
+            # use latest node 8 on debian 8 (jessie)
+            - image: circleci/node:8-jessie
+
         steps:
             - attach_workspace:
                 at: /home/circleci
