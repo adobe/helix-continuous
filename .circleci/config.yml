@@ -23,7 +23,7 @@ jobs:
                 if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
                 echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
                 # Require to "pass" variables across steps
-                echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
+                echo "export GDM_MODULE_BRANCHES='$GDM_MODULE_BRANCHES'" >> $BASH_ENV
                 echo "export cli_branch=$cli_branch" >> $BASH_ENV
                 echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
 

@@ -112,12 +112,22 @@ function setProgressOff() {
 
 function start() {
   const start = new Date().getTime();
-  const modulePath = process.env.GDM_MODULE_PATH || process.cwd();
 
   setProgressOff();
 
+  // 0. set npm dependencies as github modules + branch
+  let branches = {};
+  try {
+    branches = JSON.parse(process.env.GDM_MODULE_BRANCHES || '{}');
+    console.log('GDM will use those branches: ', branches);
+  } catch (err) {
+    console.error('Cannot read GDM_MODULE_BRANCHES variable', err);
+    throw err;
+  }
+
   // 1. install the module
   // (should be current folder otherwise specified by GDM_MODULE_PATH env variable)
+  const modulePath = process.env.GDM_MODULE_PATH || process.cwd();
   console.log(`GDM will transform module located in ${modulePath}`);
   install({
     name: modulePath,
@@ -128,14 +138,6 @@ function start() {
   console.debug();
   console.debug(`Look for all ${ADOBE_MODULES} modules`);
   const modules = listModules(`${modulePath}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}`);
-
-  // 3. set npm dependencies as github modules + branch
-  let branches = {};
-  try {
-    branches = JSON.parse(process.env.GDM_MODULE_BRANCHES || '{}');
-  } catch (err) {
-    console.error('Cannot read GDM_MODULE_BRANCHES variable', err);
-  }
 
   modules.forEach((mod) => {
     // compute the git branch or use master
