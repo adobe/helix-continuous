@@ -49,6 +49,11 @@ jobs:
             name: Clone helix-cli
             command: |
                 git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
+
+        - run:
+            name: Output helix-cli branch (for validation purpose)
+            command: git rev-parse --abbrev-ref HEAD
+            working_directory: helix-cli
         
         - run:
             name: Install using git branches (master or specified)
