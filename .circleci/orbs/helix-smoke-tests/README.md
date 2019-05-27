@@ -33,3 +33,7 @@ The `remote_repo` property is the repo where the smoke tests are stored. For now
 You can validate the new `config.yml` file with command: `circleci config process .circleci/config.yml`
 
 Note: orb are CircleCI v2.1 feature. Config must be v2.1 and `Enable build processing (preview)` must be enabled in the [advanced settings](https://circleci.com/gh/adobe/hypermedia-pipeline/edit#advanced-settings).
+
+## Debug
+
+When using the orb in a project, each PR from that project will have a `smoke — Workflow: smoke` validation check. If this fails, this usually means the smoke tests failed and your code / PR breaks "something".
