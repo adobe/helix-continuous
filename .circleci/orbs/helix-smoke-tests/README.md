@@ -36,6 +36,8 @@ Note: orb are CircleCI v2.1 feature. Config must be v2.1 and `Enable build proce
 
 ## Debug
 
+### Basic steps
+
 When using the orb in a project, each PR from that project will have a `smoke — Workflow: smoke` validation check. If this fails, this usually means the smoke tests failed and your code / PR breaks "something". Now the task is to find what.
 
 To check the execution result of the smoke tests, from the PR you can click on the "Details" link next to `smoke Failing after Xm — Workflow: smoke` check and follow the links to CircleCI:
@@ -71,3 +73,33 @@ The `Compute parameters and echo values` workflow step tells you:
 * the `project-helix.io` branch (`master` in that case)
 
 The `Run Smoke Tests on project-helix.io` workflow step is the actual execution of the smoke tests, results are sent back to calling job.
+
+### Advanced steps
+
+To run the smoke tests like they are executed by CircleCi, you need to run the following steps:
+
+1. Clone [helix-continuous](https://github.com/adobe/helix-continuous):
+
+`git clone --branch master --single-branch --depth 1 https://github.com/adobe/helix-continuous.git`
+
+2. Setup the GDM (Git Dependency Maker):
+
+`cd helix-continuous/scripts/gdm; npm install; cd ../../..`
+
+3. Clone [helix-cli](https://github.com/adobe/helix-cli): 
+
+`git clone --branch master --single-branch --depth 1 https://github.com/adobe/helix-cli.git`
+
+4. Run GDM on helix-cli (~ construct a cli patched with your changes):
+
+`cd helix-cli; env GDM_MODULE_BRANCHES='{"<project_your_are_working_on>": "<branch_of_project_your_are_working_on>"}' node ../helix-continuous/scripts/gdm/index.js; cd ..`
+
+5. Clone [project-helix.io](https://github.com/adobe/project-helix.io) and install:
+
+`git clone --single-branch --depth 1 -b master https://github.com/adobe/project-helix.io.git; cd project-helix.io; npm install; cd ..`
+
+6. Finally, run the smoke tests:
+
+`cd project-helix.io; env HLX_SMOKE_EXEC='node ../helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*; cd ..`
+
+If you are building a backward compatibility change, you need to update [project-helix.io](https://github.com/adobe/project-helix.io). At step 5, you can clone the project with the branch including your required changes.
