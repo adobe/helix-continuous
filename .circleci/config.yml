@@ -1,23 +1,28 @@
-version: 2.0
+version: 2.1
 
 defaults: &defaults
   docker:
     - image: circleci/node:8-jessie
 
+parameters:
+  GDM_MODULE_BRANCHES:
+    type: String
+    default: "{}"
+  SMOKETEST_BRANCH:
+    type: String
+    default: master
+
 aliases:
     - compute_parameters: &compute_parameters
         name: Compute parameters and echo values
         command: |
-            echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
-            if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
-            cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+            echo -n "Branch(es) received as parameter: << pipeline.parameters.GDM_MODULE_BRANCHES >>"
+            cli_branch=$(echo "<< pipeline.parameters.GDM_MODULE_BRANCHES >>" | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
             echo "Using helix-cli branch: ${cli_branch}"
-            if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
-            echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
+            echo "Using project-helix.io branch: << pipeline.parameters.SMOKETEST_BRANCH >>"
+
             # Require to "pass" variables across steps
-            echo "export GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES" >> $BASH_ENV
             echo "export cli_branch=$cli_branch" >> $BASH_ENV
-            echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
             
     - set_git_user: &set_git_user
         name: Prepare test git user
@@ -60,7 +65,7 @@ jobs:
             
             - run:
                 name: Install using git branches (master or specified)
-                command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
+                command: env GDM_MODULE_BRANCHES="<< pipeline.parameters.GDM_MODULE_BRANCHES>>" node ../scripts/gdm/index.js
                 working_directory: helix-cli
 
             - persist_to_workspace:
@@ -84,7 +89,7 @@ jobs:
             - run:
                 name: Clone project-helix.io
                 command: |
-                    git clone --single-branch --depth 1 -b ${SMOKETEST_BRANCH} https://github.com/adobe/project-helix.io.git
+                    git clone --single-branch --depth 1 -b << pipeline.parameters.SMOKETEST_BRANCH >> https://github.com/adobe/project-helix.io.git
 
             - run:
                 name: Install project-helix.io
