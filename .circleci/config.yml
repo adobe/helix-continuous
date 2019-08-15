@@ -65,7 +65,7 @@ jobs:
             
             - run:
                 name: Install using git branches (master or specified)
-                command: env GDM_MODULE_BRANCHES="<< pipeline.parameters.GDM_MODULE_BRANCHES>>" node ../scripts/gdm/index.js
+                command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
                 working_directory: helix-cli
 
             - persist_to_workspace:
