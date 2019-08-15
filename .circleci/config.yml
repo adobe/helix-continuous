@@ -154,10 +154,10 @@ workflows:
             - init
             - test_project_helix:
                 requires:
-                - build_cli
+                - init
             - test_helix_cli:
                 requires:
-                - build_cli
+                - init
             - finalize:
                 requires:
                 - test_project_helix
