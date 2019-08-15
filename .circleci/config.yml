@@ -29,7 +29,7 @@ aliases:
         command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
 
 jobs:
-    build_cli:
+    init:
         <<: *defaults
 
         steps:
@@ -68,12 +68,15 @@ jobs:
                 command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
                 working_directory: helix-cli
 
+            - run: mkdir junit
+
             - persist_to_workspace:
                 root: /home/circleci
                 paths:
                     # for whatever reason, working directoy is project.
                     - project
                     - .npm
+                    - junit
 
     test_project_helix:
         <<: *defaults
@@ -101,6 +104,14 @@ jobs:
                 name: Run Smoke Tests on project-helix.io
                 command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
                 working_directory: project-helix.io
+                environment:
+                    MOCHA_FILE: junit/test-results-project-helix.xml
+
+            - store_test_results:
+                path: junit
+
+            - store_artifacts:
+                path: junit
 
     test_helix_cli:
         <<: *defaults
@@ -111,15 +122,12 @@ jobs:
 
             - run: *set_git_user
 
-            # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
-            - run: mkdir junit
-            
             - run:
                 name: Test helix-cli
                 command: npm run test
                 working_directory: helix-cli
                 environment:
-                    MOCHA_FILE: junit/test-results.xml
+                    MOCHA_FILE: junit/test-results-helix-cli.xml
 
             - store_test_results:
                 path: junit
