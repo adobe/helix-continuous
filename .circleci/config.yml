@@ -16,8 +16,8 @@ aliases:
     - compute_parameters: &compute_parameters
         name: Compute parameters and echo values
         command: |
-            echo -n "Branch(es) received as parameter: << pipeline.parameters.GDM_MODULE_BRANCHES >>"
-            cli_branch=$(echo "<< pipeline.parameters.GDM_MODULE_BRANCHES >>" | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+            echo "Branch(es) received as parameter: << pipeline.parameters.GDM_MODULE_BRANCHES >>"
+            cli_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
             echo "Using helix-cli branch: ${cli_branch}"
             echo "Using project-helix.io branch: << pipeline.parameters.SMOKETEST_BRANCH >>"
 
