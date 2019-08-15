@@ -6,10 +6,10 @@ defaults: &defaults
 
 parameters:
   GDM_MODULE_BRANCHES:
-    type: String
+    type: string
     default: "{}"
   SMOKETEST_BRANCH:
-    type: String
+    type: string
     default: master
 
 aliases:
