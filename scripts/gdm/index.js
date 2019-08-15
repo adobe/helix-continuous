@@ -14,7 +14,6 @@
 'use strict';
 
 const fse = require('fs-extra');
-const { dirname } = require('path');
 const $ = require('shelljs');
 
 const NODE_MODULES_LOCATION = 'node_modules';
@@ -30,23 +29,19 @@ function install(mod) {
     cwd: mod.path,
   });
 
-  // console.debug('Linking output:', out.stdout);
-
   if (out.stderr && out.stderr !== '') {
     console.error('Installing stderr:', out.stderr);
   }
 }
 
 function installDependency(depName, cwd) {
-  console.log(`Installing dependency ${depName}`);
+  console.log(`Installing dependency ${depName} in ${cwd}`);
 
   const out = $.exec(`npm install ${depName} --no-audit --prefer-offline`, {
     silent: false,
     async: false,
     cwd,
   });
-
-  // console.debug('Linking output:', out.stdout);
 
   if (out.stderr && out.stderr !== '') {
     console.error('Installing stderr:', out.stderr);
@@ -74,100 +69,127 @@ function listModules(path) {
   return modules;
 }
 
-function installAsGitDependency(mod, branch, cwd) {
-  const dep = `github:${ADOBE_ORG}/${mod.name}#${branch}`;
+function installAsGitDependency(name, branch, cwd) {
+  const dep = `github:${ADOBE_ORG}/${name}#${branch}`;
   installDependency(dep, cwd);
 }
 
-function link(source, target, cwd) {
-  console.log(`Linking ${source} as ${target} in ${cwd}`);
-
-  const out = $.exec(`ln -s ${source} ${target}`, {
-    silent: false,
-    async: false,
-    cwd,
-  });
-
-  // console.debug('Linking output:', out.stdout);
-
-  if (out.stderr && out.stderr !== '') {
-    console.error('Linking stderr:', out.stderr);
-  }
-}
-
 function setProgressOff() {
-  console.log(`Setting npm progress off`);
+  console.log('Setting npm progress off');
 
-  const out = $.exec(`npm set progress=false`, {
+  const out = $.exec('npm set progress=false', {
     silent: false,
     async: false,
   });
-
-  // console.debug('Linking output:', out.stdout);
 
   if (out.stderr && out.stderr !== '') {
     console.error('npm set progress off stderr:', out.stderr);
   }
 }
 
-function start() {
-  const start = new Date().getTime();
-  const modulePath = process.env.GDM_MODULE_PATH || process.cwd();
+function npmls(list) {
+  console.log(`npm ls ${list}`);
+  const out = $.exec(`npm ls ${list}`, {
+    silent: false,
+    async: false,
+  });
+
+  console.log(out.stdout);
+
+  if (out.stderr && out.stderr !== '') {
+    console.error('npm ls stderr:', out.stderr);
+  }
+}
+
+async function start() {
+  const startTime = new Date().getTime();
 
   setProgressOff();
 
-  // 1. install the module
   // (should be current folder otherwise specified by GDM_MODULE_PATH env variable)
+  const modulePath = process.env.GDM_MODULE_PATH || process.cwd();
   console.log(`GDM will transform module located in ${modulePath}`);
+
+  let branches = {};
+  try {
+    branches = JSON.parse(process.env.GDM_MODULE_BRANCHES || '{}');
+    console.log('GDM will use those branches: ', branches);
+  } catch (err) {
+    console.error('Cannot read GDM_MODULE_BRANCHES variable', err);
+    throw err;
+  }
+
+  // install the module
   install({
     name: modulePath,
     path: modulePath,
   });
 
-  // 2. find list of all @adobe modules
-  console.debug();
-  console.debug(`Look for all ${ADOBE_MODULES} modules`);
-  const modules = listModules(`${modulePath}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}`);
+  // will contain the name of all the @adobe modules found during the process
+  const allAdobeModuleNames = [];
 
-  // 3. set npm dependencies as github modules + branch
-  let branches = {};
-  try {
-    branches = JSON.parse(process.env.GDM_MODULE_BRANCHES || '{}');
-  } catch (err) {
-    console.error('Cannot read GDM_MODULE_BRANCHES variable', err);
-  }
+  // find list of all @adobe modules
+  console.log();
+  console.log(`Look for all ${ADOBE_MODULES} modules`);
 
-  modules.forEach((mod) => {
-    // compute the git branch or use master
-    console.debug();
-    console.debug(`Found module ${mod.name} that needs to be installed from git`);
-    installAsGitDependency(mod, branches[mod.name] || 'master', modulePath);
-  });
+  // contains the list of all @adobe modules from the root module
+  const topLevelModules = listModules(`${modulePath}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}`);
 
-  // 4. find dependencies of dependencies (subdep) and set as link (might need a clone first)
-  modules.forEach((mod) => {
-    const sub = listModules(`${mod.path}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}`);
-    sub.forEach(async (subdep) => {
-      console.debug();
-      console.debug(`Found a subdep in ${mod.name}: ${subdep.path}`);
+  // save all module names for later use
+  topLevelModules.forEach(mod => allAdobeModuleNames.push(mod.name));
 
-      console.debug(`Deleting ${subdep.path}`);
-      // delete subsub to link it afterward
-      await fse.remove(subdep.path);
+  // all @adobe modules that needs to be patched provided via the env variable
+  const modulesToPatch = Object.keys(branches);
 
-      // if dep is missing in module then install it
-      const pathInParent = `${modulePath}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}/${subdep.name}`;
-      if (!fse.existsSync(pathInParent)) {
-        console.debug(`subdep ${mod.path} does not exist parent. Installing it as a git dependency in ${pathInParent}`);
-        installAsGitDependency(subdep, branches[mod.name] || 'master', modulePath);
+  if (modulesToPatch.length > 0) {
+    modulesToPatch.forEach((modToPatchName) => {
+      // if module depends on the module to patch, then install it as a git dependency
+      if (topLevelModules.filter(mod => mod.name === modToPatchName).length > 0) {
+        // module to patch is a direct dependency, install as a git dependency
+        const branch = branches[modToPatchName];
+        console.log();
+        console.log(`Found module ${modToPatchName} in main module that needs to be installed from git with branch ${branch}`);
+        installAsGitDependency(modToPatchName, branch, modulePath);
       }
 
-      // finally, link it in the subdep
-      link(pathInParent, subdep.name, `${dirname(subdep.path)}`);
-    });
-  });
+      // inspect all other modules and their sub dependencies
+      topLevelModules.filter(mod => mod.name !== modToPatchName).forEach((mod) => {
+        if (mod.name !== modToPatchName) {
+          // check sub dependencies of each module
+          const subModules = listModules(`${mod.path}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}`);
 
-  console.log(`Total execution time: ${new Date().getTime() - start} ms.`);
+          // save the name of modules for later use
+          subModules
+            .filter(submod => allAdobeModuleNames.indexOf(submod.name) === 0)
+            .forEach(submod => allAdobeModuleNames.push(submod.name));
+
+          // if submodules contains the module to patch, then use the git dependency
+          subModules.filter(submod => submod.name === modToPatchName).forEach(async (subdep) => {
+            console.log();
+            console.log(`Found ${modToPatchName} as subdep of ${mod.name}: ${subdep.path}`);
+
+            const pathInParent = `${modulePath}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}/${modToPatchName}`;
+            if (!fse.existsSync(pathInParent)) {
+              // does not exist at parent level (should never occur...), install as a git dependency
+              console.log(`subdep ${mod.path} does not exist in parent. Installing it locally  ${pathInParent}`);
+              installAsGitDependency(modToPatchName, branches[modToPatchName], subdep.path);
+            } else {
+              // otherwise, use parent's one as dependency
+              installDependency(pathInParent, mod.path);
+            }
+          });
+        }
+      });
+    });
+  }
+
+  // for more accurate result, remote package-lock
+  await fse.remove(`${modulePath}/package-lock.json`);
+
+  // display npm ls of all the modules to know which versions have been used
+  npmls(allAdobeModuleNames.map(name => `${ADOBE_MODULES}/${name}`).join(' '));
+
+  console.log(`Total execution time: ${new Date().getTime() - startTime} ms.`);
   console.log('Done.');
 }
 

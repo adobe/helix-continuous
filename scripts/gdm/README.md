@@ -4,7 +4,7 @@ Util that transforms the `@adobe` dependencies of an npm module into [github dep
 The branch defined for those `@adobe` github dependencies is `master`. This can be overruled via the GDM_MODULE_BRANCHES env variable:
 
 ```bash
-env GDM_MODULE_BRANCHES='{"helix-simulator": "branchX", "hypermedia-pipeline": "branchY"}'
+env GDM_MODULE_BRANCHES='{"helix-simulator": "branchX", "helix-pipeline": "branchY"}'
 ```
 
 You can specify the module to be transformed location using the GDM_MODULE_PATH env variable. If not specified, the current folder is used.
@@ -16,5 +16,5 @@ A typical use case is PR testing: get a `master` version `helix-cli` embedding o
 ## Usage
 
 ```bash
-env GDM_MODULE_BRANCHES='{hypermedia-pipeline": "branchY"}' GDM_MODULE_PATH='/Users/auser/workspace/helix-cli' node index.js
+env GDM_MODULE_BRANCHES='{helix-pipeline": "branchY"}' GDM_MODULE_PATH='/Users/auser/workspace/helix-cli' node index.js
 ```
