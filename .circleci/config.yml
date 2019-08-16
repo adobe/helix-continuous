@@ -68,7 +68,7 @@ jobs:
                 command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
                 working_directory: helix-cli
 
-            - run: mkdir /home/circleci/project/junit
+            - run: mkdir junit
 
             - persist_to_workspace:
                 root: /home/circleci
@@ -104,13 +104,13 @@ jobs:
                 command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
                 working_directory: project-helix.io
                 environment:
-                    MOCHA_FILE: /home/circleci/project/junit/test-results-project-helix.xml
+                  MOCHA_FILE: junit/test-results-project-helix.xml
 
             - store_test_results:
-                path: /home/circleci/project/junit
+                path: junit
 
             - store_artifacts:
-                path: /home/circleci/project/junit
+                path: junit
 
     test_helix_cli:
         <<: *defaults
@@ -126,10 +126,10 @@ jobs:
                 command: npm run test
                 working_directory: helix-cli
                 environment:
-                    MOCHA_FILE: /home/circleci/project/junit/test-results-helix-cli.xml
+                  MOCHA_FILE: junit/test-results-helix-cli.xml
 
             - store_test_results:
-                path: /home/circleci/project/junit
+                path: junit
 
             - store_artifacts:
                 path: /home/circleci/project/junit
