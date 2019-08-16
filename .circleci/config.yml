@@ -68,8 +68,6 @@ jobs:
                 command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
                 working_directory: helix-cli
 
-            - run: mkdir junit
-
             - persist_to_workspace:
                 root: /home/circleci
                 paths:
@@ -98,6 +96,8 @@ jobs:
                 command: npm install --no-audit --prefer-offline
                 working_directory: project-helix.io
 
+            - run: mkdir junit
+
             # Run the smoke tests
             - run:
                 name: Run Smoke Tests on project-helix.io
@@ -120,6 +120,8 @@ jobs:
                 at: /home/circleci
 
             - run: *set_git_user
+
+            - run: mkdir junit
 
             - run:
                 name: Test helix-cli
