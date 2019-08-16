@@ -101,10 +101,8 @@ jobs:
             # Run the smoke tests
             - run:
                 name: Run Smoke Tests on project-helix.io
-                command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
+                command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
                 working_directory: project-helix.io
-                environment:
-                  MOCHA_FILE: junit/test-results-project-helix.xml
 
             - store_test_results:
                 path: junit
@@ -125,16 +123,14 @@ jobs:
 
             - run:
                 name: Test helix-cli
-                command: npm run test-ci
+                command: env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npm run test-ci
                 working_directory: helix-cli
-                environment:
-                  MOCHA_FILE: junit/test-results-helix-cli.xml
 
             - store_test_results:
                 path: junit
 
             - store_artifacts:
-                path: /home/circleci/project/junit
+                path: junit
 
     finalize:
         <<: *defaults
