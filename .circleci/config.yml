@@ -104,13 +104,13 @@ jobs:
                 command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
                 working_directory: project-helix.io
                 environment:
-                    MOCHA_FILE: project/junit/test-results-project-helix.xml
+                    MOCHA_FILE: /home/circleci/project/junit/test-results-project-helix.xml
 
             - store_test_results:
-                path: project/junit
+                path: junit
 
             - store_artifacts:
-                path: project/junit
+                path: junit
 
     test_helix_cli:
         <<: *defaults
@@ -126,13 +126,13 @@ jobs:
                 command: npm run test
                 working_directory: helix-cli
                 environment:
-                    MOCHA_FILE: project/junit/test-results-helix-cli.xml
+                    MOCHA_FILE: /home/circleci/project/junit/test-results-helix-cli.xml
 
             - store_test_results:
-                path: project/junit
+                path: junit
 
             - store_artifacts:
-                path: project/junit
+                path: junit
 
     finalize:
         <<: *defaults
