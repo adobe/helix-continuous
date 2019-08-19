@@ -41,12 +41,12 @@ commands:
                 type: string
                 description: the CircleCI token to execute a CircleCI job on the smoke test repo
             local_repo:
-                type: string
-                default: ${CIRCLE_PROJECT_REPONAME}
+                type: env_var_name
+                default: CIRCLE_PROJECT_REPONAME
                 description: the repo that "requests" the smoke tests
             local_branch:
-                type: string
-                default: ${CIRCLE_BRANCH}
+                type: env_var_name
+                default: CIRCLE_BRANCH
                 description: the branch of the repo that "requests" the smoke tests
             remote_repo:
                 type: string
