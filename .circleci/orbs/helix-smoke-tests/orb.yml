@@ -67,7 +67,7 @@ commands:
                         --user << parameters.token>>: \
                         --header "Content-Type: application/json" \
                         --silent \
-                        --data "{ \"branch\": \"<< parameters.remote_branch >>\", \"parameters\": {\"GDM_MODULE_BRANCHES\": \"{ \\\"<< parameters.local_repo >>\\\": \\\"<< parameters.local_branch >>\\\"}\", \"SMOKETEST_BRANCH\": \"<< parameters.smoketest_branch >>\"}}" \
+                        --data "{ \"branch\": \"<< parameters.remote_branch >>\", \"parameters\": {\"GDM_MODULE_BRANCHES\": \"{ \\\"${<< parameters.local_repo >>}\\\": \\\"${<< parameters.local_branch >>}\\\"}\", \"SMOKETEST_BRANCH\": \"<< parameters.smoketest_branch >>\"}}" \
                         --request POST "https://circleci.com/api/v2/project/github/<< parameters.remote_repo >>/pipeline" > run_tests_cmd_job.json
             - run:
                 name: Wait for smoke tests job to complete and report status
