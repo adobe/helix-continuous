@@ -72,7 +72,7 @@ commands:
             - run:
                 name: Wait for smoke tests job to complete and report status
                 command: |
-                    smoke_job_build_num=$(jq '.build_num' < run_tests_cmd_job.json)
+                    smoke_job_build_num=$(jq '.number' < run_tests_cmd_job.json)
 
                     build_url="https://circleci.com/api/v1.1/project/github/<< parameters.remote_repo >>/${smoke_job_build_num}"
 
