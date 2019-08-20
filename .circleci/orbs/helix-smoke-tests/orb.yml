@@ -13,10 +13,6 @@ jobs:
 
         description: "Run smoke tests on a remote repository, wait for execution and report status"
         parameters:
-            token:
-                type: env_var_name
-                default: SMOKE_TEST_TOKEN_V2
-                description: the CircleCI token to execute a CircleCI job on the smoke test repo
             remote_repo:
                 type: string
                 description: the repo that hosts the smoke tests
@@ -30,7 +26,6 @@ jobs:
                 description: the name of the branch of the smoke test module
         steps:
             - run-helix-smoke-tests-cmd:
-                token: << parameters.token >>
                 remote_repo: << parameters.remote_repo >>
                 remote_branch: << parameters.remote_branch >>
                 smoketest_branch: << parameters.smoketest_branch >>
@@ -39,7 +34,8 @@ commands:
         description: "Run smoke tests on a remote repository, wait for execution and report status"
         parameters:
             token:
-                type: string
+                type: env_var_name
+                default: SMOKE_TEST_TOKEN_V2
                 description: the CircleCI token to execute a CircleCI job on the smoke test repo
             local_repo:
                 type: env_var_name
