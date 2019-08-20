@@ -1,104 +1,161 @@
-version: 2.0
+version: 2.1
+
+defaults: &defaults
+  docker:
+    - image: circleci/node:8-jessie
+
+parameters:
+  GDM_MODULE_BRANCHES:
+    type: string
+    default: "{}"
+  SMOKETEST_BRANCH:
+    type: string
+    default: master
+
+aliases:
+    - compute_parameters: &compute_parameters
+        name: Compute parameters and echo values
+        command: |
+            echo "Branch(es) received as parameter: << pipeline.parameters.GDM_MODULE_BRANCHES >>"
+            cli_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
+            echo "Using helix-cli branch: ${cli_branch}"
+            echo "Using project-helix.io branch: << pipeline.parameters.SMOKETEST_BRANCH >>"
+
+            # Require to "pass" variables across steps
+            echo "export cli_branch=$cli_branch" >> $BASH_ENV
+            
+    - set_git_user: &set_git_user
+        name: Prepare test git user
+        command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
 
 jobs:
-  build:
-    docker:
-        # use latest node 8 on debian 8 (jessie)
-        # (on debian 9 (stretch) a runtime error occurs: Error: libcrypto.so.1.0.0: cannot open shared object file: No such file or directory)
-        # see https://github.com/adobe/helix-cli/issues/353 for more details
-        - image: circleci/node:8-jessie
-    environment:
-        NPM_CONFIG_PREFIX: ~/.npm-global
+    init:
+        <<: *defaults
 
-    steps:
-        # Prepare working env
-        - checkout
-        - run:
-            name: Compute parameters and echo values
-            command: |
-                echo -n "Branch(es) received as parameter: " && [[ ! -z "${GDM_MODULE_BRANCHES}" ]] && echo "${GDM_MODULE_BRANCHES}" || echo "No parameter received - using all master"
-                if [ -z ${GDM_MODULE_BRANCHES} ]; then GDM_MODULE_BRANCHES="{}"; fi
-                cli_branch=$(echo $GDM_MODULE_BRANCHES | jq -r 'if ."helix-cli" then ."helix-cli" else "master" end');
-                echo "Using helix-cli branch: ${cli_branch}"
-                if [ -z ${SMOKETEST_BRANCH} ]; then SMOKETEST_BRANCH="master"; fi
-                echo "Using project-helix.io branch: ${SMOKETEST_BRANCH}"
-                # Require to "pass" variables across steps
-                echo "export GDM_MODULE_BRANCHES='$GDM_MODULE_BRANCHES'" >> $BASH_ENV
-                echo "export cli_branch=$cli_branch" >> $BASH_ENV
-                echo "export SMOKETEST_BRANCH=$SMOKETEST_BRANCH" >> $BASH_ENV
+        steps:
+            # Prepare working env
+            - checkout
+            - run: *compute_parameters
 
-        - run:
-            name: Install npm 6.4.1
-            command: sudo npm -g install npm@6.4.1
+            - run:
+                name: Install npm 6.4.1
+                command: sudo npm -g install npm@6.4.1
 
-        - run:
-            name: Prepare test git user
-            command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
+            - run: *set_git_user
 
-        - restore_cache:
-            keys:
-            - v3-dependencies-{{ arch }}-continuous-npm-cache
+            - restore_cache:
+                keys:
+                - v5-dependencies-{{ arch }}-continuous-npm-cache
 
-        - run:
-            name: Install Git Dependency Maker tool
-            command: npm install --no-audit --prefer-offline
-            working_directory: scripts/gdm
+            - run:
+                name: Install Git Dependency Maker tool
+                command: npm install --no-audit --prefer-offline
+                working_directory: scripts/gdm
 
-        # Prepare helix-cli to run the smoke tests
-        - run:
-            name: Clone helix-cli
-            command: |
-                git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
+            # Prepare helix-cli to run the smoke tests
+            - run:
+                name: Clone helix-cli
+                command: |
+                    git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
+                    
+            - run:
+                name: Output helix-cli branch (for validation purpose)
+                command: git rev-parse --abbrev-ref HEAD
+                working_directory: helix-cli
+            
+            - run:
+                name: Install using git branches (master or specified)
+                command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
+                working_directory: helix-cli
 
-        - run:
-            name: Output helix-cli branch (for validation purpose)
-            command: git rev-parse --abbrev-ref HEAD
-            working_directory: helix-cli
-        
-        - run:
-            name: Install using git branches (master or specified)
-            command: env GDM_MODULE_BRANCHES=$GDM_MODULE_BRANCHES node ../scripts/gdm/index.js
-            working_directory: helix-cli
+            - persist_to_workspace:
+                root: /home/circleci
+                paths:
+                    # for whatever reason, working directoy is project.
+                    - project
+                    - .npm
 
-        # Checkout project-helix.io
-        - run:
-            name: Clone project-helix.io
-            command: |
-                git clone --single-branch --depth 1 -b ${SMOKETEST_BRANCH} https://github.com/adobe/project-helix.io.git
+    test_project_helix:
+        <<: *defaults
 
-        - run:
-            name: Install project-helix.io
-            command: npm install --no-audit --prefer-offline
-            working_directory: project-helix.io
+        steps:
+            - attach_workspace:
+                at: /home/circleci
 
-        - save_cache:
-            paths:
-            - /home/circleci/.npm
-            key: v3-dependencies-{{ arch }}-continuous-npm-cache
+            - run: *compute_parameters
+            - run: *set_git_user
 
-        # Run the smoke tests
-        - run:
-            name: Run Smoke Tests on project-helix.io
-            command: env HLX_SMOKE_EXEC='node ../helix-cli/index.js --log-level warn' npx mocha --exit test/smoke/*
-            working_directory: project-helix.io
+            # Checkout project-helix.io
+            - run:
+                name: Clone project-helix.io
+                command: |
+                    git clone --single-branch --depth 1 -b << pipeline.parameters.SMOKETEST_BRANCH >> https://github.com/adobe/project-helix.io.git
 
-        # Run the hlx-cli (last step because they might fail for good reason - tests upgrade required, non-backward comp... )
-        - run: mkdir junit
-        
-        - run:
-            name: Test helix-cli
-            command: npm run test
-            working_directory: helix-cli
-            environment:
-                MOCHA_FILE: junit/test-results.xml
+            - run:
+                name: Install project-helix.io
+                command: npm install --no-audit --prefer-offline
+                working_directory: project-helix.io
 
-        - store_test_results:
-            path: junit
+            - run: mkdir junit
 
-        - store_artifacts:
-            path: junit
+            # Run the smoke tests
+            - run:
+                name: Run Smoke Tests on project-helix.io
+                command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
+                working_directory: project-helix.io
+
+            - store_test_results:
+                path: junit
+
+            - store_artifacts:
+                path: junit
+
+    test_helix_cli:
+        <<: *defaults
+
+        steps:
+            - attach_workspace:
+                at: /home/circleci
+
+            - run: *set_git_user
+
+            - run: mkdir junit
+
+            - run:
+                name: Test helix-cli
+                command: env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npm run test-ci
+                working_directory: helix-cli
+
+            - store_test_results:
+                path: junit
+
+            - store_artifacts:
+                path: junit
+
+    finalize:
+        <<: *defaults
+
+        steps:
+            - attach_workspace:
+                at: /home/circleci
+
+            - save_cache:
+                paths:
+                - /home/circleci/.npm
+                key: v5-dependencies-{{ arch }}-continuous-npm-cache
+
 workflows:
-  version: 2
-  build:
-    jobs:
-    - build
+    version: 2
+    build:
+        jobs:
+            - init
+            - test_project_helix:
+                requires:
+                - init
+            - test_helix_cli:
+                requires:
+                - init
+            - finalize:
+                requires:
+                - test_project_helix
+                - test_helix_cli
