@@ -14,7 +14,8 @@ jobs:
         description: "Run smoke tests on a remote repository, wait for execution and report status"
         parameters:
             token:
-                type: string
+                type: env_var_name
+                default: SMOKE_TEST_TOKEN_V2
                 description: the CircleCI token to execute a CircleCI job on the smoke test repo
             remote_repo:
                 type: string
@@ -64,7 +65,7 @@ commands:
                 name: Call remote smoke tests job
                 command: |
                     curl \
-                        --user << parameters.token>>: \
+                        --user ${<< parameters.token>>}: \
                         --header "Content-Type: application/json" \
                         --silent \
                         --data "{ \"branch\": \"<< parameters.remote_branch >>\", \"parameters\": {\"GDM_MODULE_BRANCHES\": \"{ \\\"${<< parameters.local_repo >>}\\\": \\\"${<< parameters.local_branch >>}\\\"}\", \"SMOKETEST_BRANCH\": \"<< parameters.smoketest_branch >>\"}}" \
@@ -72,24 +73,41 @@ commands:
             - run:
                 name: Wait for smoke tests job to complete and report status
                 command: |
-                    smoke_job_build_num=$(jq '.number' < run_tests_cmd_job.json)
+                    # get pipeline from response
+                    smoke_pipeline_id=$(jq -r '.id' < run_tests_cmd_job.json)
 
-                    build_url="https://circleci.com/api/v1.1/project/github/<< parameters.remote_repo >>/${smoke_job_build_num}"
+                    pipeline_url="https://circleci.com/api/v2/pipeline/${smoke_pipeline_id}"
 
+                    echo "New pipeline triggered. See ${pipeline_url}"
+                    echo -n "Waiting now for the workflow to start"
+                    # get workflow id from pipeline
+                    # this assumes ([0]) there is only one workflow started
+                    RUNNING=true
+                        while [ $RUNNING == true ]; do
+                        sleep 1;
+                        smoke_workflow_id=$(curl --silent --header "Accept: application/json" --user ${<< parameters.token>>}: ${pipeline_url} | jq -r ".workflows[0].id" || echo '')
+                        echo 'waiting for workflow to start' | grep --silent "$smoke_workflow_id" || RUNNING=false;
+                        echo -n "."
+                    done
+
+                    echo ""
+
+                    workflow_url="https://circleci.com/api/v2/workflow/${smoke_workflow_id}"
                     smoke_result_file="smoke_result.json"
 
-                    echo "Waiting now for smoke tests job execution. See build ${build_url}."
+                    echo "Smoke tests workflow - i.e \"build\" workflow - triggered. See ${workflow_url}"
+                    echo -n "Waiting now for workflow execution"
 
                     RUNNING=true
                         while [ $RUNNING == true ]; do
                         sleep 10;
-                        status=$(curl --silent --header "Accept: application/json" "${build_url}?circle-token=$1" | tee ${smoke_result_file} | jq -r '.status' || echo '');
+                        status=$(curl --silent --header "Accept: application/json"  --user ${<< parameters.token>>}: ${workflow_url} | tee ${smoke_result_file} | jq -r '.status' || echo '');
                         echo 'running queued scheduled not_running' | grep --silent "$status" || RUNNING=false;
                         echo -n "."
                     done
 
                     echo ""
-                    echo "Smoke tests ${build_url} finished with status ${status}"
+                    echo "Smoke tests ${workflow_url} finished with status \"${status}\""
 
                     exit_code=0
                     if [[ ! $status =~ 'success' ]] && [[ ! $status =~ 'fixed' ]]
