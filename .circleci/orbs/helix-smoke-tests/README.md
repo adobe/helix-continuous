@@ -33,6 +33,10 @@ You can validate the new `config.yml` file with command: `circleci config proces
 
 Note: orb are CircleCI v2.1 feature. Config must be v2.1 and `Enable build processing (preview)` must be enabled in the [advanced settings](https://circleci.com/gh/adobe/hypermedia-pipeline/edit#advanced-settings).
 
+## Repo using orb
+
+The repos using the orb have been flagged with the "helix-smoke-tests" topic. Here is the list: [`helix-smoke-tests`](https://github.com/topics/helix-smoke-tests)
+
 ## Debug
 
 ### Basic steps
