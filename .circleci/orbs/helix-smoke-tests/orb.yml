@@ -74,7 +74,7 @@ commands:
 
                     pipeline_url="https://circleci.com/api/v2/pipeline/${smoke_pipeline_id}"
 
-                    echo "New pipeline triggered. See ${pipeline_url}"
+                    echo "New pipeline triggered. See API ${pipeline_url}"
                     echo -n "Waiting now for the workflow to start"
                     # get workflow id from pipeline
                     # this assumes ([0]) there is only one workflow started
@@ -91,7 +91,10 @@ commands:
                     workflow_url="https://circleci.com/api/v2/workflow/${smoke_workflow_id}"
                     smoke_result_file="smoke_result.json"
 
-                    echo "Smoke tests workflow - i.e \"build\" workflow - triggered. See ${workflow_url}"
+                    echo "Smoke tests workflow - i.e \"build\" workflow - triggered. See API ${workflow_url}"
+                    echo ""
+                    echo "To debug error or check workflow sate, you can check the workflow UI here - https://circleci.com/workflow-run/${smoke_workflow_id}"
+                    echo ""
                     echo -n "Waiting now for workflow execution"
 
                     RUNNING=true
