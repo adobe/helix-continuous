@@ -1,14 +1,53 @@
 version: 2.1
 
 description: |
-  Runs post-deploy actions on Project Helix repos
+  Post-deploy actions for Project Helix repos
 
 executors:
     node8:
         docker:
             - image: circleci/node:8
+jobs:
+  run:
+    executor: node8
+    description: "Job to run post-deploy actions on Project Helix repos"
+    parameters:
+        action_name:
+            type: string
+            description: The name of the deployed action
+        newrelic_auth:
+            type: env_var_name
+            default: NEWRELIC_AUTH
+            description: The admin's API key for your New Relic account (not the user API key!)
+        newrelic_name:
+            type: string
+            description: The name to be used for the New Relic monitor, alert policy and notification channel
+        newrelic_group_policy: 
+            type: string
+            description: A collective alert policy in New Relic to add the monitor to
+        statuspage_auth:
+            type: env_var_name
+            default: STATUSPAGE_AUTH
+            description: The API user key for your Statuspage account (this is the user API key)
+        statuspage_page_id:
+            type: env_var_name
+            default: STATUSPAGE_PAGE_ID
+            description: The ID of the page to add components to in Statuspage
+        statuspage_name:
+            type: string
+            description: The name to be used for the Statuspage component
+        statuspage_group:
+            type: string
+            description: The name of the component group in Statuspage to add the new component to
+    steps:
+        - run-helix-post-deploy-cmd:
+            action_name: << parameters.action_name >>
+            newrelic_name: << parameters.newrelic_name >>
+            statuspage_name: << parameters.statuspage_name >>
+            statuspage_group: << parameters.statuspage_group >>
+
 commands:
-    post-deploy:
+    run-helix-post-deploy-cmd:
         description: Runs post-deploy actions on Project Helix repos
         parameters:
             action_name:
