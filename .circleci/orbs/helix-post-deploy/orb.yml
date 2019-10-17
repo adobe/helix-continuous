@@ -40,74 +40,36 @@ jobs:
             type: string
             description: The name of the component group in Statuspage to add the new component to
     steps:
-        - run-helix-post-deploy-cmd:
-            action_name: << parameters.action_name >>
-            newrelic_name: << parameters.newrelic_name >>
-            statuspage_name: << parameters.statuspage_name >>
-            statuspage_group: << parameters.statuspage_group >>
+      - run:
+          name: Run post-deploy actions
+          command: |
+              # statuspage automation
+              spName="<< parameters.statuspage_name >>"
+              spGroup="<< parameters.statuspage_group >>"
+              spCmd="node ./node_modules/.bin/statuspage setup --silent"
+              if [ "${spName}" != "" ]; then
+                spCmd="${spCmd} --name \"${spName}\""
+              fi
+              if [ "${spGroup}" != "" ]; then
+                spCmd="${spCmd} --group \"${spGroup}\""
+              fi
+              email=eval $spCmd
 
-commands:
-    run-helix-post-deploy-cmd:
-        description: Runs post-deploy actions on Project Helix repos
-        parameters:
-            action_name:
-                type: string
-                description: The name of the deployed action
-            newrelic_auth:
-                type: env_var_name
-                default: NEWRELIC_AUTH
-                description: The admin's API key for your New Relic account (not the user API key!)
-            newrelic_name:
-                type: string
-                description: The name to be used for the New Relic monitor, alert policy and notification channel
-            newrelic_group_policy: 
-                type: string
-                description: A collective alert policy in New Relic to add the monitor to
-            statuspage_auth:
-                type: env_var_name
-                default: STATUSPAGE_AUTH
-                description: The API user key for your Statuspage account (this is the user API key)
-            statuspage_page_id:
-                type: env_var_name
-                default: STATUSPAGE_PAGE_ID
-                description: The ID of the page to add components to in Statuspage
-            statuspage_name:
-                type: string
-                description: The name to be used for the Statuspage component
-            statuspage_group:
-                type: string
-                description: The name of the component group in Statuspage to add the new component to
-        steps:
-            - run:
-                name: Run post-deploy actions
-                command: |
-                    # statuspage automation
-                    spName="<< statuspage_name >>"
-                    spGroup="<< statuspage_group >>"
-                    spCmd="node ./node_modules/.bin/statuspage setup --silent"
-                    if [ "${spName}" != "" ]; then
-                      spCmd="${spCmd} --name \"${spName}\""
-                    fi
-                    if [ "${spGroup}" != "" ]; then
-                      spCmd="${spCmd} --group \"${spGroup}\""
-                    fi
-                    email=eval $spCmd
-
-                    # new relic automation
-                    if [ "<< action_name >>" != "" ]; then
-                      actionName="<< action_name >>"
-                    else
-                      actionName=`node -e "console.log(require('./package.json').name.replace('@adobe/helix-', ''))"`
-                    fi
-                    actionVersion=`node -e "console.log(require('./package.json').version.match(/^[0-9]+.[0-9]+/)[0])"`
-                    url="https://adobeioruntime.net/api/v1/web/helix/helix-services/${actionName}@v${actionVersion}/_status_check/healthcheck.json"
-                    nrName="<< newrelic_name >>"
-                    nrGroupPolicy="<< newrelic_group_policy >>"
-                    nrCmd="node ./node_modules/.bin/newrelic setup ${url} ${email}"
-                    if [ "${nrName}" != "" ]; then
-                      nrCmd="${nrCmd} --name \"${nrName}\""
-                    fi
-                    if [ "${nrGroupPolicy}" != "" ]; then
-                      nrCmd="${nrCmd} --group_policy \"${nrGroupPolicy}\""
-                    fi
-                    eval ${nrCmd}
+              # new relic automation
+              if [ "<< parameters.action_name >>" != "" ]; then
+                actionName="<< parameters.action_name >>"
+              else
+                actionName=`node -e "console.log(require('./package.json').name.replace('@adobe/helix-', ''))"`
+              fi
+              actionVersion=`node -e "console.log(require('./package.json').version.match(/^[0-9]+.[0-9]+/)[0])"`
+              url="https://adobeioruntime.net/api/v1/web/helix/helix-services/${actionName}@v${actionVersion}/_status_check/healthcheck.json"
+              nrName="<< parameters.newrelic_name >>"
+              nrGroupPolicy="<< parameters.newrelic_group_policy >>"
+              nrCmd="node ./node_modules/.bin/newrelic setup ${url} ${email}"
+              if [ "${nrName}" != "" ]; then
+                nrCmd="${nrCmd} --name \"${nrName}\""
+              fi
+              if [ "${nrGroupPolicy}" != "" ]; then
+                nrCmd="${nrCmd} --group_policy \"${nrGroupPolicy}\""
+              fi
+              eval ${nrCmd}
