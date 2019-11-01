@@ -1,16 +1,16 @@
 version: 2.1
 
 description: |
-  Post-deploy actions for Project Helix repos
+  Configures monitoring and alerting in New Relic, and links to Statuspage for public visibility of Project Helix services.
 
 executors:
     node8:
         docker:
             - image: circleci/node:8
-jobs:
-  run:
-    executor: node8
-    description: "Job to run post-deploy actions on Project Helix repos"
+
+commands:
+  monitoring:
+    description: "Command to set up monitoring for Project Helix services"
     parameters:
         action_name:
             type: string
@@ -46,7 +46,7 @@ jobs:
             description: The name of the component group in Statuspage to add the new component to
     steps:
       - run:
-          name: Run post-deploy actions
+          name: Monitoring Setup
           command: |
               # statuspage automation
               spCmd="node ./node_modules/.bin/statuspage setup --silent"
@@ -56,7 +56,7 @@ jobs:
               if [ "<< parameters.statuspage_group >>" != "" ]; then
                 spCmd="${spCmd} --group \"<< parameters.statuspage_group >>\""
               fi
-              email=eval $spCmd
+              email="`eval ${spCmd}`"
 
               # new relic automation
               if [ "<< parameters.action_name >>" != "" ]; then
