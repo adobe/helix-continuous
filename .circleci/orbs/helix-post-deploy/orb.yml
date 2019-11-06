@@ -10,8 +10,12 @@ executors:
 
 commands:
   monitoring:
-    description: "Command to set up monitoring for Project Helix services"
+    description: "Set up monitoring for Project Helix services"
     parameters:
+        tool_path:
+            type: string
+            default: "./node_modules/.bin"
+            description: The path to the monitoring automation tooling
         action_name:
             type: string
             default: ""
@@ -49,7 +53,7 @@ commands:
           name: Monitoring Setup
           command: |
               # statuspage automation
-              spCmd="node ./node_modules/.bin/statuspage setup --silent"
+              spCmd="node << tool_path >>/statuspage setup --silent"
               if [ "<< parameters.statuspage_name >>" != "" ]; then
                 spCmd="${spCmd} --name \"<< parameters.statuspage_name >>\""
               fi
@@ -66,7 +70,7 @@ commands:
               fi
               actionVersion=`node -e "console.log(require('./package.json').version.match(/^[0-9]+.[0-9]+/)[0])"`
               url="https://adobeioruntime.net/api/v1/web/helix/helix-services/${actionName}@v${actionVersion}/_status_check/healthcheck.json"
-              nrCmd="node ./node_modules/.bin/newrelic setup ${url} ${email}"
+              nrCmd="node << tool_path >>/newrelic setup ${url} ${email}"
               if [ "<< parameters.newrelic_name >>" != "" ]; then
                 nrCmd="${nrCmd} --name \"<< parameters.newrelic_name >>\""
               fi
