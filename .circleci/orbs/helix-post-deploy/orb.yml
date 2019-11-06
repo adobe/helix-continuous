@@ -9,8 +9,22 @@ executors:
             - image: circleci/node:8
 
 commands:
+  config-env:
+    description: Configures the build environment
+    steps:
+      - run:
+          name: Configure Environment
+          command: echo -e "LOG_LEVEL=info\n" > .env
+
+  config-wsk:
+    description: Sets the OpenWhisk properties
+    steps:
+      - run:
+          name: Configure OpenWhisk
+          command: echo -e "APIHOST=https://adobeioruntime.net\nNAMESPACE=helix\nAUTH=$WSK_AUTH\n" > ~/.wskprops
+
   monitoring:
-    description: "Set up monitoring for Project Helix services"
+    description: Sets up the monitoring
     parameters:
         tool_path:
             type: string
