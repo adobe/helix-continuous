@@ -70,7 +70,9 @@ jobs:
 
             - run:
                 name: Validate orbs
-                command: find . -name orb.yml -exec circleci orb validate {} \;
+                command: |
+                    curl -fLSs https://circle.ci/cli | DESTDIR=/home/circleci bash
+                    find project -name orb.yml -exec ./circleci orb validate {} \;
 
             - persist_to_workspace:
                 root: /home/circleci
