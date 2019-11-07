@@ -35,6 +35,13 @@ jobs:
         steps:
             # Prepare working env
             - checkout
+
+            - run:
+                name: Validate orbs
+                command: |
+                    curl -fLSs https://circle.ci/cli | DESTDIR=/home/circleci bash
+                    find . -name orb.yml -exec ./circleci orb validate {} \;
+
             - run: *compute_parameters
 
             - run:
@@ -67,12 +74,6 @@ jobs:
                 name: Install using git branches (master or specified)
                 command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
                 working_directory: helix-cli
-
-            - run:
-                name: Validate orbs
-                command: |
-                    curl -fLSs https://circle.ci/cli | DESTDIR=/home/circleci bash
-                    find project -name orb.yml -exec ./circleci orb validate {} \;
 
             - persist_to_workspace:
                 root: /home/circleci
