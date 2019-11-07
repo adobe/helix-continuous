@@ -42,6 +42,10 @@ commands:
             type: string
             default: ""
             description: The name to be used for the New Relic monitor, alert policy and notification channel
+        newrelic_url:
+            type: string
+            default: ""
+            description: The URL to monitor in New Relic
         newrelic_group_policy: 
             type: string
             default: ""
@@ -77,13 +81,17 @@ commands:
               email="`eval ${spCmd}`"
 
               # new relic automation
-              if [ "<< parameters.action_name >>" != "" ]; then
-                actionName="<< parameters.action_name >>"
+              if [ "<< parameters.newrelic_url >>" != "" ]; then
+                url="<< parameters.newrelic_url >>"
               else
-                actionName=`node -e "console.log(require('./package.json').name.replace('@adobe/helix-', ''))"`
+                if [ "<< parameters.action_name >>" != "" ]; then
+                  actionName="<< parameters.action_name >>"
+                else
+                  actionName=`node -e "console.log(require('./package.json').name.replace('@adobe/helix-', ''))"`
+                fi
+                actionVersion=`node -e "console.log(require('./package.json').version.match(/^[0-9]+.[0-9]+/)[0])"`
+                url="https://adobeioruntime.net/api/v1/web/helix/helix-services/${actionName}@v${actionVersion}/_status_check/healthcheck.json"
               fi
-              actionVersion=`node -e "console.log(require('./package.json').version.match(/^[0-9]+.[0-9]+/)[0])"`
-              url="https://adobeioruntime.net/api/v1/web/helix/helix-services/${actionName}@v${actionVersion}/_status_check/healthcheck.json"
               nrCmd="node << parameters.tool_path >>/newrelic setup ${url} ${email}"
               if [ "<< parameters.newrelic_name >>" != "" ]; then
                 nrCmd="${nrCmd} --name \"<< parameters.newrelic_name >>\""
