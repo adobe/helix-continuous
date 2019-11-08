@@ -1,9 +1,0 @@
-version: 2.1
-
-description: |
-  Test validation of broken orb
-
-executors:
-    node8:
-        docker:
-            - image: circleci/node:8
