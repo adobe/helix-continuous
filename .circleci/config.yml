@@ -35,6 +35,13 @@ jobs:
         steps:
             # Prepare working env
             - checkout
+
+            - run:
+                name: Validate orbs
+                command: |
+                    curl -fLSs https://circle.ci/cli | DESTDIR=/home/circleci bash
+                    find . -name orb.yml -print0 | xargs -0 -I% /home/circleci/circleci orb validate %
+
             - run: *compute_parameters
 
             - run:
