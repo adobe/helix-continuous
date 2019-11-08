@@ -7,6 +7,3 @@ executors:
     node8:
         docker:
             - image: circleci/node:8
-jobs:
-  - this:
-      is: invalid
