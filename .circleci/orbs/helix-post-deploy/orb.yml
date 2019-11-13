@@ -92,8 +92,8 @@ commands:
               if [ "<< parameters.newrelic_url >>" != "" ]; then
                 url="<< parameters.newrelic_url >>"
               else
-                actionNS = "<< parameters.action_namespace >>"
-                actionPackage = "<< parameters.action_package >>"
+                actionNS="<< parameters.action_namespace >>"
+                actionPackage="<< parameters.action_package >>"
                 if [ "<< parameters.action_name >>" != "" ]; then
                   actionName="<< parameters.action_name >>"
                 else
