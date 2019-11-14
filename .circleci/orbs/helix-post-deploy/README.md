@@ -26,12 +26,8 @@ jobs:
       - ...
       - helix-post-deploy/monitoring
 ```
-The following parameters can be specified (all optional, or configurable in your project's package.json):
-- `action_name`: The name of the action deployed in I/O Runtime (defaults to your project's package name after `@adobe/helix-`)
-- `statuspage_name`: The name to be used for the Statuspage component (defaults to your project's package name)
-- `statuspage_group`: The name of the component group in Statuspage to add the new component to (optional, configurable in your project's package.json)
-- `newrelic_name`: The name to be used for the New Relic monitor, alert policy and notification channel (defaults to your project's package name)
-- `newrelic_group_policy`: A collective alert policy in New Relic to add the monitor to (optional, configurable in your project's package.json)
+For a list of all parameters supported by the `monitoring` command, see here:
+https://circleci.com/orbs/registry/orb/adobe/helix-post-deploy
 
 #### Dependencies
 
