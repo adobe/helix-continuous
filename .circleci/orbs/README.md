@@ -8,7 +8,6 @@ Current namespace: `adobe` (the namespace is what appears in the first part of t
 List of available orbs:
 
 * [adobe/helix-smoke-tests](helix-smoke-tests/orb.yml)
-* [adobe/helix-post-deploy](helix-post-deploy/orb.yml)
 
 ## Setup
 
