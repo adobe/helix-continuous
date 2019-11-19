@@ -25,4 +25,4 @@ Modify an existing orb and publish a new version:
 * First validate the yml file: `circleci orb validate <orb_name>/orb.yml`
 * Publish increment a new version: `circleci orb publish increment <orb_name>/orb.yml adobe/<orb_name> patch` (semantic versioning: patch / minor / major)
 * Update the version in the orb's `README.md`
-* Commit changes :)
+* Commit changes
