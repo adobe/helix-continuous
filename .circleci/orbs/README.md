@@ -8,7 +8,6 @@ Current namespace: `adobe` (the namespace is what appears in the first part of t
 List of available orbs:
 
 * [adobe/helix-smoke-tests](helix-smoke-tests/orb.yml)
-* [adobe/helix-post-deploy](helix-post-deploy/orb.yml)
 
 ## Setup
 
@@ -26,4 +25,4 @@ Modify an existing orb and publish a new version:
 * First validate the yml file: `circleci orb validate <orb_name>/orb.yml`
 * Publish increment a new version: `circleci orb publish increment <orb_name>/orb.yml adobe/<orb_name> patch` (semantic versioning: patch / minor / major)
 * Update the version in the orb's `README.md`
-* Commit changes :)
+* Commit changes
