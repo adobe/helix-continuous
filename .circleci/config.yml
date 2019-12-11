@@ -36,10 +36,6 @@ jobs:
             # Prepare working env
             - checkout
 
-            - run: 
-                name: TMP - Check if link can be output
-                command: echo "<a href='www.google.com'>Google is your friend</a>"
-
             - run:
                 name: Validate orbs
                 command: |
