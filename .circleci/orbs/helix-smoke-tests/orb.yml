@@ -72,7 +72,7 @@ commands:
                     # get pipeline from response
                     smoke_pipeline_id=$(jq -r '.id' < run_tests_cmd_job.json)
 
-                    pipeline_url="https://circleci.com/api/v2/pipeline/${smoke_pipeline_id}"
+                    pipeline_url="https://circleci.com/api/v2/pipeline/${smoke_pipeline_id}/workflow"
 
                     echo "New pipeline triggered. See API ${pipeline_url}"
                     echo -n "Waiting now for the workflow to start"
@@ -81,7 +81,7 @@ commands:
                     RUNNING=true
                         while [ $RUNNING == true ]; do
                         sleep 1;
-                        smoke_workflow_id=$(curl --silent --header "Accept: application/json" --user ${<< parameters.token>>}: ${pipeline_url} | jq -r ".workflows[0].id" || echo '')
+                        smoke_workflow_id=$(curl --silent --header "Accept: application/json" --user ${<< parameters.token>>}: ${pipeline_url} | jq -r ".items[0].id" || echo '')
                         echo 'waiting for workflow to start' | grep --silent "$smoke_workflow_id" || RUNNING=false;
                         echo -n "."
                     done
@@ -93,7 +93,7 @@ commands:
 
                     echo "Smoke tests workflow - i.e \"build\" workflow - triggered. See API ${workflow_url}"
                     echo ""
-                    echo "To debug error or check workflow sate, you can check the workflow UI here - https://circleci.com/workflow-run/${smoke_workflow_id}"
+                    echo "To debug error or check workflow sate, you can access the workflow UI here - https://circleci.com/workflow-run/${smoke_workflow_id}"
                     echo ""
                     echo -n "Waiting now for workflow execution"
 
@@ -106,29 +106,11 @@ commands:
                     done
 
                     echo ""
-                    echo "Smoke tests ${workflow_url} finished with status \"${status}\""
+                    echo "Smoke tests https://circleci.com/workflow-run/${smoke_workflow_id} finished with status \"${status}\""
 
                     exit_code=0
                     if [[ ! $status =~ 'success' ]] && [[ ! $status =~ 'fixed' ]]
                     then
                         exit_code=1
-
-                        # get the output_url property from the first failing task
-                        output_url=$(jq -r "[.steps[] | select(.actions[0].failed == true)][0] | .actions[0].output_url" ${smoke_result_file});
-
-                        echo ""
-                        echo "Smoke tests error message:"
-                        echo ""
-
-                        if [ ! -z "${output_url}" ]
-                        then
-                            # call the output url to fetch the error message and display it
-                            error_message=$(curl --silent --compressed --header "Accept: application/json" "${output_url}" | jq -r '.[0].message');
-                            echo -n "${error_message}" | tr -d '\r'
-                        else
-                            # no output_url, unknown error
-                            echo "Unknown error. Check the smoke test job execution logs for more details."
-                        fi
-                        echo ""
                     fi
                     exit $exit_code
