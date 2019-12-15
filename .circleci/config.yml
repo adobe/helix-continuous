@@ -103,12 +103,33 @@ jobs:
                 command: npm install --no-audit --prefer-offline
                 working_directory: project-helix.io
 
+            - run:
+                name: Install helix-pipeline inside project if version provided as parameter
+                working_directory: project-helix.io
+                command: |
+                    pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
+                    if [[ -z "$pipeline_branch" ]]
+                    then
+                        echo "Installing provided helix-pipeline branch: ${cli_branch}"
+                        npm install https://github.com/adobe/helix-pipeline.git#$pipeline_branch
+                    else
+                        echo "No helix-pipeline branch provided"
+                    fi
+
             - run: mkdir junit
 
             # Run the smoke tests
             - run:
-                name: Run Smoke Tests on project-helix.io
-                command: env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
+                name: Run Smoke Tests on project-helix.io with potentially a custom pipeline
+                command: | 
+                    pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
+                    if [[ -z "$pipeline_branch" ]]
+                    then
+                        echo "Running tests with provided helix-pipeline branch: ${cli_branch}"
+                        env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#$pipeline_branch' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
+                    else
+                        env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
+                    fi
                 working_directory: project-helix.io
 
             - store_test_results:
