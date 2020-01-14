@@ -2,7 +2,7 @@ version: 2.1
 
 defaults: &defaults
   docker:
-    - image: circleci/node:8-jessie
+    - image: circleci/node:10-stretch
 
 parameters:
   GDM_MODULE_BRANCHES:
@@ -23,7 +23,7 @@ aliases:
 
             # Require to "pass" variables across steps
             echo "export cli_branch=$cli_branch" >> $BASH_ENV
-            
+
     - set_git_user: &set_git_user
         name: Prepare test git user
         command: git config --global user.email "circleci@project-helix.io" && git config --global user.name "CircleCi Build"
@@ -45,8 +45,8 @@ jobs:
             - run: *compute_parameters
 
             - run:
-                name: Install npm 6.4.1
-                command: sudo npm -g install npm@6.4.1
+                name: Install npm 6.13.4
+                command: sudo npm -g install npm@6.13.4
 
             - run: *set_git_user
 
@@ -64,12 +64,12 @@ jobs:
                 name: Clone helix-cli
                 command: |
                     git clone --branch $cli_branch --single-branch --depth 1 https://github.com/adobe/helix-cli.git
-                    
+
             - run:
                 name: Output helix-cli branch (for validation purpose)
                 command: git rev-parse --abbrev-ref HEAD
                 working_directory: helix-cli
-            
+
             - run:
                 name: Install using git branches (master or specified)
                 command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
@@ -121,7 +121,7 @@ jobs:
             # Run the smoke tests
             - run:
                 name: Run Smoke Tests on project-helix.io with potentially a custom pipeline
-                command: | 
+                command: |
                     pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
                     if [[ -z "$pipeline_branch" ]]
                     then
