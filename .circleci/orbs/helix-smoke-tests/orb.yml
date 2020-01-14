@@ -4,12 +4,12 @@ description: |
   Runs Project Helix smoke tests
 
 executors:
-    node8:
+    node10:
         docker:
-            - image: circleci/node:8
+            - image: circleci/node:10
 jobs:
     run:
-        executor: node8
+        executor: node10
 
         description: "Run smoke tests on a remote repository, wait for execution and report status"
         parameters:
@@ -20,7 +20,7 @@ jobs:
                 type: string
                 default: master
                 description: the branch of repo that hosts the smoke tests
-            smoketest_branch: 
+            smoketest_branch:
                 type: string
                 default: master
                 description: the name of the branch of the smoke test module
@@ -52,7 +52,7 @@ commands:
                 type: string
                 default: master
                 description: the branch of repo that hosts the smoke tests
-            smoketest_branch: 
+            smoketest_branch:
                 type: string
                 default: master
                 description: the name of the branch of the smoke test module
