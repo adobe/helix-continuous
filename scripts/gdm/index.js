@@ -136,7 +136,7 @@ async function start() {
   const topLevelModules = listModules(`${modulePath}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}`);
 
   // save all module names for later use
-  topLevelModules.forEach(mod => allAdobeModuleNames.push(mod.name));
+  topLevelModules.forEach((mod) => allAdobeModuleNames.push(mod.name));
 
   // all @adobe modules that needs to be patched provided via the env variable
   const modulesToPatch = Object.keys(branches);
@@ -144,7 +144,7 @@ async function start() {
   if (modulesToPatch.length > 0) {
     modulesToPatch.forEach((modToPatchName) => {
       // if module depends on the module to patch, then install it as a git dependency
-      if (topLevelModules.filter(mod => mod.name === modToPatchName).length > 0) {
+      if (topLevelModules.filter((mod) => mod.name === modToPatchName).length > 0) {
         // module to patch is a direct dependency, install as a git dependency
         const branch = branches[modToPatchName];
         console.log();
@@ -153,18 +153,18 @@ async function start() {
       }
 
       // inspect all other modules and their sub dependencies
-      topLevelModules.filter(mod => mod.name !== modToPatchName).forEach((mod) => {
+      topLevelModules.filter((mod) => mod.name !== modToPatchName).forEach((mod) => {
         if (mod.name !== modToPatchName) {
           // check sub dependencies of each module
           const subModules = listModules(`${mod.path}/${NODE_MODULES_LOCATION}/${ADOBE_MODULES}`);
 
           // save the name of modules for later use
           subModules
-            .filter(submod => allAdobeModuleNames.indexOf(submod.name) === 0)
-            .forEach(submod => allAdobeModuleNames.push(submod.name));
+            .filter((submod) => allAdobeModuleNames.indexOf(submod.name) === 0)
+            .forEach((submod) => allAdobeModuleNames.push(submod.name));
 
           // if submodules contains the module to patch, then use the git dependency
-          subModules.filter(submod => submod.name === modToPatchName).forEach(async (subdep) => {
+          subModules.filter((submod) => submod.name === modToPatchName).forEach(async (subdep) => {
             console.log();
             console.log(`Found ${modToPatchName} as subdep of ${mod.name}: ${subdep.path}`);
 
@@ -187,7 +187,7 @@ async function start() {
   await fse.remove(`${modulePath}/package-lock.json`);
 
   // display npm ls of all the modules to know which versions have been used
-  npmls(allAdobeModuleNames.map(name => `${ADOBE_MODULES}/${name}`).join(' '));
+  npmls(allAdobeModuleNames.map((name) => `${ADOBE_MODULES}/${name}`).join(' '));
 
   console.log(`Total execution time: ${new Date().getTime() - startTime} ms.`);
   console.log('Done.');
