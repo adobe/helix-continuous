@@ -39,7 +39,7 @@ jobs:
             - run:
                 name: Validate orbs
                 command: |
-                    curl -fLSs https://circle.ci/cli | DESTDIR=/home/circleci bash
+                    curl --http1.1 -fLSs https://circle.ci/cli | DESTDIR=/home/circleci bash
                     find . -name orb.yml -print0 | xargs -0 -I% /home/circleci/circleci orb validate %
 
             - run: *compute_parameters
