@@ -108,7 +108,7 @@ jobs:
                 working_directory: project-helix.io
                 command: |
                     pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
-                    if [[ -z "$pipeline_branch" ]]
+                    if [[ ! -z "$pipeline_branch" ]]
                     then
                         echo "Installing provided helix-pipeline branch: ${cli_branch}"
                         npm install https://github.com/adobe/helix-pipeline.git#$pipeline_branch
@@ -123,7 +123,7 @@ jobs:
                 name: Run Smoke Tests on project-helix.io with potentially a custom pipeline
                 command: |
                     pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
-                    if [[ -z "$pipeline_branch" ]]
+                    if [[ ! -z "$pipeline_branch" ]]
                     then
                         echo "Running tests with provided helix-pipeline branch: ${cli_branch}"
                         env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#$pipeline_branch' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
@@ -153,7 +153,7 @@ jobs:
                 name: Run helix-cli tests with potentially a custom pipeline
                 command: |
                     pipeline_branch=$(echo '{ "helix-pipeline":"issues/642" }' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
-                    if [[ -z "$pipeline_branch" ]]
+                    if [[ ! z-z "$pipeline_branch" ]]
                     then
                         echo "Running tests with provided helix-pipeline branch: ${pipeline_branch}"
                         env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#$pipeline_branch' npm run test-ci
