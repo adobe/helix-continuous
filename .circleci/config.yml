@@ -150,8 +150,16 @@ jobs:
             - run: mkdir junit
 
             - run:
-                name: Test helix-cli
-                command: env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npm run test-ci
+                name: Run helix-cli tests with potentially a custom pipeline
+                command: |
+                    pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
+                    if [[ -z "$pipeline_branch" ]]
+                    then
+                        echo "Running tests with provided helix-pipeline branch: ${cli_branch}"
+                        env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#$pipeline_branch' npm run test-ci
+                    else
+                        env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npm run test-ci
+                    fi
                 working_directory: helix-cli
 
             - store_test_results:
