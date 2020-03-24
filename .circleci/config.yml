@@ -155,7 +155,7 @@ jobs:
                     pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
                     if [[ -z "$pipeline_branch" ]]
                     then
-                        echo "Running tests with provided helix-pipeline branch: ${cli_branch}"
+                        echo "Running tests with provided helix-pipeline branch: ${pipeline_branch}"
                         env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#$pipeline_branch' npm run test-ci
                     else
                         env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npm run test-ci
