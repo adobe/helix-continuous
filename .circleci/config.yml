@@ -152,7 +152,7 @@ jobs:
             - run:
                 name: Run helix-cli tests with potentially a custom pipeline
                 command: |
-                    pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
+                    pipeline_branch=$(echo '{ "helix-pipeline":"issues/642" }' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
                     if [[ -z "$pipeline_branch" ]]
                     then
                         echo "Running tests with provided helix-pipeline branch: ${pipeline_branch}"
