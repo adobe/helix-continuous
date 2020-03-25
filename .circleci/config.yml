@@ -120,13 +120,13 @@ jobs:
 
             # Run the smoke tests
             - run:
-                name: Run Smoke Tests on project-helix.io with potentially a custom pipeline
+                name: Run Smoke Tests on project-helix.io
                 command: |
                     pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
                     if [[ ! -z "$pipeline_branch" ]]
                     then
-                        echo "Running tests with provided helix-pipeline branch: ${cli_branch}"
-                        env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#$pipeline_branch' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
+                        echo "Running tests with provided helix-pipeline branch: ${pipeline_branch}"
+                        env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#'$pipeline_branch npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
                     else
                         env HLX_SMOKE_EXEC='node ~/project/helix-cli/index.js --log-level warn' MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npx mocha --exit test/smoke/* --reporter mocha-junit-reporter
                     fi
@@ -150,13 +150,13 @@ jobs:
             - run: mkdir junit
 
             - run:
-                name: Run helix-cli tests with potentially a custom pipeline
+                name: Run helix-cli tests
                 command: |
                     pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "" end');
                     if [[ ! -z "$pipeline_branch" ]]
                     then
                         echo "Running tests with provided helix-pipeline branch: ${pipeline_branch}"
-                        env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#$pipeline_branch' npm run test-ci
+                        env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' HLX_CUSTOM_PIPELINE='https://github.com/adobe/helix-pipeline.git#'$pipeline_branch npm run test-ci
                     else
                         env MOCHA_FILE='/home/circleci/project/junit/test-results-helix-cli.xml' npm run test-ci
                     fi
