@@ -75,6 +75,14 @@ jobs:
                 command: env GDM_MODULE_BRANCHES='<< pipeline.parameters.GDM_MODULE_BRANCHES>>' node ../scripts/gdm/index.js
                 working_directory: helix-cli
 
+            - run:
+                name: npm pack
+                command: mv "$(npm pack | tail -n 1)" helix-cli-patched.tgz
+                working_directory: helix-cli
+
+            - store_artifacts:
+                path: helix-cli/helix-cli-patched.tgz
+
             - persist_to_workspace:
                 root: /home/circleci
                 paths:
