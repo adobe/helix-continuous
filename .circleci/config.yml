@@ -80,19 +80,21 @@ jobs:
 
             - run:
                 name: npm pack
-                command: mv "$(npm pack | tail -n 1)" helix-cli-patched-$CIRCLE_BUILD_NUM.tgz
+                command: mv "$(npm pack | tail -n 1)" helix-cli-patched.tgz
                 working_directory: helix-cli
 
             - store_artifacts:
-                path: helix-cli/helix-cli-patched-$CIRCLE_BUILD_NUM.tgz
+                path: helix-cli/helix-cli-patched.tgz
 
             - mem/remember:
                 env_var: HELIX_CLI_ARTIFACT
-                value: 'https://$CIRCLE_BUILD_NUM-158522375-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched-$CIRCLE_BUILD_NUM.tgz'
+                value: 'https://$CIRCLE_BUILD_NUM-158522375-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched.tgz'
 
             - run:
                 name: Compute custom pipeline branch (if needed)
-                command: pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "NO VALUE" end');
+                command: |
+                    pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "NO VALUE" end');
+                    export pipeline_branch
 
             - mem/remember:
                 env_var: HELIX_CUSTOM_PIPELINE
