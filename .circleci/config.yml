@@ -93,7 +93,7 @@ jobs:
             # compute pipeline custom branch
             - mem/remember:
                 env_var: HELIX_CUSTOM_PIPELINE
-                value: $(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "NO VALUE" end');
+                value: $(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "NO VALUE" end')
 
             - persist_to_workspace:
                 root: /home/circleci
