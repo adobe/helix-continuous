@@ -130,6 +130,9 @@ jobs:
                 name: debug
                 command: echo $HELIX_CLI_ARTIFACT ":" $HELIX_CUSTOM_PIPELINE > test.txt
 
+            - store_artifacts:
+                path: test.txt
+
             # Checkout project-helix.io
             - run:
                 name: Clone project-helix.io
