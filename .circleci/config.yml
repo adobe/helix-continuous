@@ -85,7 +85,7 @@ jobs:
 
             - run:
                 name: echo artifact url
-                command: echo https://{$BUILD_ID}-{$REPO_ID}-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched.tgz
+                command: echo https://$CIRCLE_BUILD_NUM-158522375-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched.tgz > url.txt
 
             - persist_to_workspace:
                 root: /home/circleci
