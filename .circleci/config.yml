@@ -83,6 +83,10 @@ jobs:
             - store_artifacts:
                 path: helix-cli/helix-cli-patched.tgz
 
+            - run:
+                name: echo artifact url
+                commad: echo https://{$BUILD_ID}-{$REPO_ID}-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched.tgz
+
             - persist_to_workspace:
                 root: /home/circleci
                 paths:
