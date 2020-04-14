@@ -12,6 +12,9 @@ parameters:
     type: string
     default: master
 
+orbs:
+  mem: circleci/rememborb@0.0.1
+
 aliases:
     - compute_parameters: &compute_parameters
         name: Compute parameters and echo values
@@ -77,15 +80,28 @@ jobs:
 
             - run:
                 name: npm pack
-                command: mv "$(npm pack | tail -n 1)" helix-cli-patched.tgz
+                command: mv "$(npm pack | tail -n 1)" helix-cli-patched-$CIRCLE_BUILD_NUM.tgz
                 working_directory: helix-cli
 
             - store_artifacts:
-                path: helix-cli/helix-cli-patched.tgz
+                path: helix-cli/helix-cli-patched-$CIRCLE_BUILD_NUM.tgz
 
             - run:
-                name: echo artifact url
-                command: echo https://$CIRCLE_BUILD_NUM-158522375-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched.tgz > url.txt
+                name: "Remember" helix-cli artifact
+                - mem/remember:
+                    env_var: HELIX_CLI_ARTIFACT
+                    value: https://$CIRCLE_BUILD_NUM-158522375-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched-$CIRCLE_BUILD_NUM.tgz
+
+            - run:
+                name: Compute custom pipeline branch (if needed)
+                command: |
+                    pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "NO VALUE" end');
+
+            - run:
+                name: "Remember" custom pipeline branch
+                - mem/remember:
+                    env_var: HELIX_CUSTOM_PIPELINE
+                    value: $pipeline_branch
 
             - persist_to_workspace:
                 root: /home/circleci
@@ -103,6 +119,16 @@ jobs:
 
             - run: *compute_parameters
             - run: *set_git_user
+
+             - mem/recall:
+                env_var: HELIX_CLI_ARTIFACT
+
+             - mem/recall:
+                env_var: HELIX_CUSTOM_PIPELINE
+
+            - run:
+                name: debug
+                command: echo $HELIX_CLI_ARTIFACT ":" $HELIX_CUSTOM_PIPELINE > test.txt
 
             # Checkout project-helix.io
             - run:
