@@ -88,16 +88,15 @@ jobs:
 
             - mem/remember:
                 env_var: HELIX_CLI_ARTIFACT
-                value: https://$CIRCLE_BUILD_NUM-158522375-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched-$CIRCLE_BUILD_NUM.tgz
+                value: 'https://$CIRCLE_BUILD_NUM-158522375-gh.circle-artifacts.com/0/helix-cli/helix-cli-patched-$CIRCLE_BUILD_NUM.tgz'
 
             - run:
                 name: Compute custom pipeline branch (if needed)
-                command: |
-                    pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "NO VALUE" end');
+                command: pipeline_branch=$(echo '<< pipeline.parameters.GDM_MODULE_BRANCHES >>' | jq -r 'if ."helix-pipeline" then ."helix-pipeline" else "NO VALUE" end');
 
             - mem/remember:
                 env_var: HELIX_CUSTOM_PIPELINE
-                value: $pipeline_branch
+                value: '$pipeline_branch'
 
             - persist_to_workspace:
                 root: /home/circleci
@@ -116,10 +115,10 @@ jobs:
             - run: *compute_parameters
             - run: *set_git_user
 
-             - mem/recall:
+            - mem/recall:
                 env_var: HELIX_CLI_ARTIFACT
 
-             - mem/recall:
+            - mem/recall:
                 env_var: HELIX_CUSTOM_PIPELINE
 
             - run:
