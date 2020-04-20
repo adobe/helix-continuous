@@ -93,7 +93,7 @@ commands:
 
                     echo "Smoke tests workflow - i.e \"build\" workflow - triggered. See API ${workflow_url}"
                     echo ""
-                    echo "To debug error or check workflow sate, you can access the workflow UI here - https://circleci.com/workflow-run/${smoke_workflow_id}"
+                    echo "To debug error or check workflow state, you can access the workflow UI here - https://circleci.com/workflow-run/${smoke_workflow_id}"
                     echo ""
                     echo -n "Waiting now for workflow execution"
 
