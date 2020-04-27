@@ -5,6 +5,7 @@ description: |
 
 executors:
     node10:
+        resource_class: small
         docker:
             - image: circleci/node:10
 jobs:
