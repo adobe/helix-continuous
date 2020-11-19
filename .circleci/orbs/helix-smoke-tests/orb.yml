@@ -19,11 +19,11 @@ jobs:
                 description: the repo that hosts the smoke tests
             remote_branch:
                 type: string
-                default: master
+                default: main
                 description: the branch of repo that hosts the smoke tests
             smoketest_branch:
                 type: string
-                default: master
+                default: main
                 description: the name of the branch of the smoke test module
         steps:
             - run-helix-smoke-tests-cmd:
@@ -51,11 +51,11 @@ commands:
                 description: the repo that hosts the smoke tests
             remote_branch:
                 type: string
-                default: master
+                default: main
                 description: the branch of repo that hosts the smoke tests
             smoketest_branch:
                 type: string
-                default: master
+                default: main
                 description: the name of the branch of the smoke test module
         steps:
             - run:

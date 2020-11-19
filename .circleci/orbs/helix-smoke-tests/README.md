@@ -55,7 +55,7 @@ For now, the smoke tests are very basic and consist into cloning [](https://gith
 
 If the smoke tests are all red, this is usually the sign of something globally broken and running `hlx up` (`hlx` being patched with your changes) on any project should be easy to reproduce.
 
-If only one smoke test fails, then you would need to understand which part of the product your code broke. Checking the [smoke tests sources](https://github.com/adobe/project-helix.io/tree/master/test/smoke) to know what the test is doing is usually a good start point.
+If only one smoke test fails, then you would need to understand which part of the product your code broke. Checking the [smoke tests sources](https://github.com/adobe/project-helix.io/tree/main/test/smoke) to know what the test is doing is usually a good start point.
 
 The smoke test job of your repo is mainly to call another job in the [](https://github.com/adobe/helix-continuous) repository and wait for its execution. When execution is over, results are sent back to current job and displayed like on the picture above. The picture shows at first lines:
 
@@ -72,8 +72,8 @@ The `Compute parameters and echo values` workflow step tells you:
 ![CircleCI - Compute parameters and echo values step](circleci_incoming_parameters.png)
 
 * the branch(es) received as parameter (`{"helix-pipeline":"wip-split-sections"}` - `helix-cli` was patched using branch `wip-split-sections` of `helix-pipeline`)
-* the helix-cli branch used to run the smoke tests (`master` in that case)
-* the `project-helix.io` branch (`master` in that case)
+* the helix-cli branch used to run the smoke tests (`main` in that case)
+* the `project-helix.io` branch (`main` in that case)
 
 The `Run Smoke Tests on project-helix.io` workflow step is the actual execution of the smoke tests, results are sent back to calling job.
 
@@ -83,7 +83,7 @@ To run the smoke tests like they are executed by CircleCi, you need to run the f
 
 1. Clone [helix-continuous](https://github.com/adobe/helix-continuous):
 
-`git clone --branch master --single-branch --depth 1 https://github.com/adobe/helix-continuous.git`
+`git clone --branch main --single-branch --depth 1 https://github.com/adobe/helix-continuous.git`
 
 2. Setup the GDM (Git Dependency Maker):
 
@@ -91,7 +91,7 @@ To run the smoke tests like they are executed by CircleCi, you need to run the f
 
 3. Clone [helix-cli](https://github.com/adobe/helix-cli): 
 
-`git clone --branch master --single-branch --depth 1 https://github.com/adobe/helix-cli.git`
+`git clone --branch main --single-branch --depth 1 https://github.com/adobe/helix-cli.git`
 
 4. Run GDM on helix-cli (~ construct a cli patched with your changes):
 
@@ -99,7 +99,7 @@ To run the smoke tests like they are executed by CircleCi, you need to run the f
 
 5. Clone [project-helix.io](https://github.com/adobe/project-helix.io) and install:
 
-`git clone --single-branch --depth 1 -b master https://github.com/adobe/project-helix.io.git; cd project-helix.io; npm install; cd ..`
+`git clone --single-branch --depth 1 -b main https://github.com/adobe/project-helix.io.git; cd project-helix.io; npm install; cd ..`
 
 6. Finally, run the smoke tests:
 
