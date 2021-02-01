@@ -10,7 +10,7 @@ parameters:
     default: "{}"
   SMOKETEST_BRANCH:
     type: string
-    default: master # default to master until projects migrated to main
+    default: main
 
 aliases:
     - compute_parameters: &compute_parameters
