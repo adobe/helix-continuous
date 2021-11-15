@@ -4,13 +4,13 @@ description: |
   Runs Project Helix smoke tests
 
 executors:
-    node10:
+    node14:
         resource_class: small
         docker:
-            - image: circleci/node:10
+            - image: circleci/node:14
 jobs:
     run:
-        executor: node10
+        executor: node14
 
         description: "Run smoke tests on a remote repository, wait for execution and report status"
         parameters:
